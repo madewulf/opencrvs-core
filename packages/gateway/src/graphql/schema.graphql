@@ -141,7 +141,6 @@ type Query {
   ): [Role]
   getCertificateSVG(status: String, event: String): CertificateSVG
   getActiveCertificatesSVG: [CertificateSVG]
-  getQuestions: [Question]
   getFormDraft: [FormDraft!]
 }
 
@@ -215,7 +214,6 @@ type Mutation {
   updateApplicationConfig(
     applicationConfig: ApplicationConfigurationInput
   ): ApplicationConfiguration
-  createOrUpdateQuestion(question: QuestionInput!): Question
   createFormDraft(formDraft: FormDraftInput!): FormDraft
   modifyDraftStatus(formDraft: FormDraftStatusModify!): FormDraft
 }
@@ -478,24 +476,6 @@ type CertificateSVG {
   status: String
 }
 
-type Question {
-  _id: ID!
-  fieldId: String!
-  label: [Messsage!]
-  placeholder: [Messsage!]
-  description: [Messsage!]
-  tooltip: [Messsage!]
-  errorMessage: [Messsage!]
-  maxLength: Int
-  fieldName: String
-  fieldType: String
-  preceedingFieldId: String
-  required: Boolean
-  enabled: String
-  custom: Boolean
-  initialValue: String
-}
-
 type FormDraft {
   _id: ID
   event: String!
@@ -658,24 +638,6 @@ input ApplicationConfigurationInput {
   PHONE_NUMBER_PATTERN: String
   NID_NUMBER_PATTERN: String
   ADDRESSES: Int
-}
-
-input QuestionInput {
-  id: ID
-  fieldId: String!
-  label: [MesssageInput!]
-  placeholder: [MesssageInput!]
-  description: [MesssageInput!]
-  tooltip: [MesssageInput!]
-  errorMessage: [MesssageInput!]
-  maxLength: Int
-  fieldName: String
-  fieldType: String
-  preceedingFieldId: String
-  required: Boolean
-  enabled: String
-  custom: Boolean
-  initialValue: String
 }
 
 input FormDraftInput {
@@ -956,11 +918,6 @@ type EventProgressSet {
   progressReport: EventProgressData
 }
 
-type Messsage {
-  lang: String!
-  descriptor: MesssageDescriptor!
-}
-
 type DraftHistory {
   _id: ID
   version: Int
@@ -1122,9 +1079,20 @@ input DeathInput {
   FEE: DeathFeeInput
 }
 
-input MesssageInput {
-  lang: String!
-  descriptor: MesssageDescriptorInput!
+input QuestionInput {
+  fieldId: String!
+  label: [MesssageInput!]
+  placeholder: [MesssageInput!]
+  description: [MesssageInput!]
+  tooltip: [MesssageInput!]
+  errorMessage: [MesssageInput!]
+  maxLength: Int
+  fieldName: String
+  fieldType: FieldType
+  preceedingFieldId: String
+  required: Boolean
+  enabled: String
+  custom: Boolean
 }
 
 enum InformantType {
@@ -1293,12 +1261,6 @@ type EventProgressData {
   timeInReadyToPrint: Int
 }
 
-type MesssageDescriptor {
-  id: String!
-  description: String!
-  defaultMessage: String!
-}
-
 input IdentityInput {
   id: ID
   type: IdentityIDType
@@ -1395,10 +1357,18 @@ input DeathFeeInput {
   DELAYED: Float
 }
 
-input MesssageDescriptorInput {
-  id: String!
-  description: String
-  defaultMessage: String!
+input MesssageInput {
+  lang: String!
+  descriptor: MesssageDescriptorInput!
+}
+
+enum FieldType {
+  TEXT
+  TEL
+  TEXTAREA
+  NUMBER
+  SUBSECTION
+  PARAGRAPH
 }
 
 type Payment {
@@ -1431,6 +1401,12 @@ input CorrectionValueInput {
   fieldName: String
   oldValue: String
   newValue: String
+}
+
+input MesssageDescriptorInput {
+  id: String!
+  description: String
+  defaultMessage: String!
 }
 
 enum PaymentType {
