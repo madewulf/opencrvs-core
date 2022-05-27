@@ -216,6 +216,7 @@ type Mutation {
   ): ApplicationConfiguration
   createFormDraft(formDraft: FormDraftInput!): FormDraft!
   modifyDraftStatus(formDraft: FormDraftStatusModifyInput!): FormDraft!
+  deleteFormDraft(formDraft: DeleteFormDraftInput!): RegistrationType
 }
 
 type Dummy {
@@ -478,7 +479,7 @@ type CertificateSVG {
 
 type FormDraft {
   _id: ID!
-  event: String!
+  event: RegistrationType!
   status: DraftStatus!
   comment: String!
   version: Int!
@@ -642,13 +643,22 @@ input ApplicationConfigurationInput {
 
 input FormDraftInput {
   questions: [QuestionInput!]!
-  event: String!
+  event: RegistrationType!
   comment: String!
 }
 
 input FormDraftStatusModifyInput {
-  event: String!
+  event: RegistrationType!
   status: DraftStatus!
+}
+
+enum RegistrationType {
+  BIRTH
+  DEATH
+}
+
+input DeleteFormDraftInput {
+  event: RegistrationType!
 }
 
 scalar Map
@@ -922,7 +932,6 @@ enum DraftStatus {
   DRAFT
   IN_PREVIEW
   PUBLISHED
-  DELETED
 }
 
 type DraftHistory {
@@ -1132,11 +1141,6 @@ type RegWorkflow {
   location: Location
   office: Location
   timeLogged: Int
-}
-
-enum RegistrationType {
-  BIRTH
-  DEATH
 }
 
 type Certificate {

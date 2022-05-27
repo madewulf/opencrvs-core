@@ -12,7 +12,6 @@ enum DraftStatus {
   DRAFT
   IN_PREVIEW
   PUBLISHED
-  DELETED
 }
 
 type DraftHistory {
@@ -25,7 +24,7 @@ type DraftHistory {
 
 type FormDraft {
   _id: ID!
-  event: String!
+  event: RegistrationType!
   status: DraftStatus!
   comment: String!
   version: Int!
@@ -36,13 +35,17 @@ type FormDraft {
 
 input FormDraftInput {
   questions: [QuestionInput!]!
-  event: String!
+  event: RegistrationType!
   comment: String!
 }
 
 input FormDraftStatusModifyInput {
-  event: String!
+  event: RegistrationType!
   status: DraftStatus!
+}
+
+input DeleteFormDraftInput {
+  event: RegistrationType!
 }
 
 type Query {
@@ -52,4 +55,5 @@ type Query {
 type Mutation {
   createFormDraft(formDraft: FormDraftInput!): FormDraft!
   modifyDraftStatus(formDraft: FormDraftStatusModifyInput!): FormDraft!
+  deleteFormDraft(formDraft: DeleteFormDraftInput!): RegistrationType
 }

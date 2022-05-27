@@ -15,8 +15,7 @@ import { Event } from '@config/models/certificate'
 export enum DraftStatus {
   DRAFT = 'DRAFT',
   IN_PREVIEW = 'IN_PREVIEW',
-  PUBLISHED = 'PUBLISHED',
-  DELETED = 'DELETED'
+  PUBLISHED = 'PUBLISHED'
 }
 
 export const validStatus = Object.values(DraftStatus)

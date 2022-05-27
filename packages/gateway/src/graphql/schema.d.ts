@@ -81,6 +81,7 @@ export interface GQLMutation {
   updateApplicationConfig?: GQLApplicationConfiguration
   createFormDraft: GQLFormDraft
   modifyDraftStatus: GQLFormDraft
+  deleteFormDraft?: GQLRegistrationType
 }
 
 export interface GQLDummy {
@@ -354,7 +355,7 @@ export interface GQLCertificateSVG {
 
 export interface GQLFormDraft {
   _id: string
-  event: string
+  event: GQLRegistrationType
   status: GQLDraftStatus
   comment: string
   version: number
@@ -518,13 +519,22 @@ export interface GQLApplicationConfigurationInput {
 
 export interface GQLFormDraftInput {
   questions: Array<GQLQuestionInput>
-  event: string
+  event: GQLRegistrationType
   comment: string
 }
 
 export interface GQLFormDraftStatusModifyInput {
-  event: string
+  event: GQLRegistrationType
   status: GQLDraftStatus
+}
+
+export const enum GQLRegistrationType {
+  BIRTH = 'BIRTH',
+  DEATH = 'DEATH'
+}
+
+export interface GQLDeleteFormDraftInput {
+  event: GQLRegistrationType
 }
 
 export type GQLMap = any
@@ -808,8 +818,7 @@ export interface GQLEventProgressSet {
 export const enum GQLDraftStatus {
   DRAFT = 'DRAFT',
   IN_PREVIEW = 'IN_PREVIEW',
-  PUBLISHED = 'PUBLISHED',
-  DELETED = 'DELETED'
+  PUBLISHED = 'PUBLISHED'
 }
 
 export interface GQLDraftHistory {
@@ -1019,11 +1028,6 @@ export interface GQLRegWorkflow {
   location?: GQLLocation
   office?: GQLLocation
   timeLogged?: number
-}
-
-export const enum GQLRegistrationType {
-  BIRTH = 'BIRTH',
-  DEATH = 'DEATH'
 }
 
 export interface GQLCertificate {
@@ -2034,6 +2038,7 @@ export interface GQLMutationTypeResolver<TParent = any> {
   updateApplicationConfig?: MutationToUpdateApplicationConfigResolver<TParent>
   createFormDraft?: MutationToCreateFormDraftResolver<TParent>
   modifyDraftStatus?: MutationToModifyDraftStatusResolver<TParent>
+  deleteFormDraft?: MutationToDeleteFormDraftResolver<TParent>
 }
 
 export interface MutationToCreateNotificationArgs {
@@ -2507,6 +2512,21 @@ export interface MutationToModifyDraftStatusResolver<
   (
     parent: TParent,
     args: MutationToModifyDraftStatusArgs,
+    context: any,
+    info: GraphQLResolveInfo
+  ): TResult
+}
+
+export interface MutationToDeleteFormDraftArgs {
+  formDraft: GQLDeleteFormDraftInput
+}
+export interface MutationToDeleteFormDraftResolver<
+  TParent = any,
+  TResult = any
+> {
+  (
+    parent: TParent,
+    args: MutationToDeleteFormDraftArgs,
     context: any,
     info: GraphQLResolveInfo
   ): TResult
