@@ -25,14 +25,14 @@ export const validEvent = Object.values(Event)
 export interface IHistory {
   version: number
   status: DraftStatus
-  comment?: string
+  comment: string
   updatedAt: number
 }
 
 export interface IFormDraft {
   event: Event
   status: DraftStatus
-  comment?: string
+  comment: string
   version: number
   history: IHistory[]
   updatedAt: number
@@ -42,20 +42,21 @@ export interface IFormDraft {
 export interface IFormDraftModel extends IFormDraft, Document {}
 
 const historySchema = new Schema<IHistory>({
-  version: Number,
+  version: { type: Number, required: true },
   status: {
     type: String,
     enum: validStatus,
-    default: DraftStatus.DRAFT
+    default: DraftStatus.DRAFT,
+    required: true
   },
-  comment: String,
-  updatedAt: Number
+  comment: { type: String, required: true },
+  updatedAt: { type: Number, required: true }
 })
 
 const formDraftSchema = new Schema({
   event: {
     type: String,
-    enum: [Event.BIRTH, Event.DEATH],
+    enum: validEvent,
     required: true
   },
   status: {
@@ -64,15 +65,16 @@ const formDraftSchema = new Schema({
     default: DraftStatus.DRAFT,
     required: true
   },
-  comment: { type: String },
-  version: { type: Number },
+  comment: { type: String, required: true },
+  version: { type: Number, required: true },
   history: [
     {
-      type: historySchema
+      type: historySchema,
+      required: true
     }
   ],
-  updatedAt: { type: Number, default: Date.now },
-  createdAt: { type: Number, default: Date.now }
+  updatedAt: { type: Number, default: Date.now, required: true },
+  createdAt: { type: Number, default: Date.now, required: true }
 })
 
 export default model<IFormDraftModel>('FormDraft', formDraftSchema)

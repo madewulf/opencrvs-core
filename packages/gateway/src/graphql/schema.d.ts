@@ -46,7 +46,7 @@ export interface GQLQuery {
   getRoles?: Array<GQLRole | null>
   getCertificateSVG?: GQLCertificateSVG
   getActiveCertificatesSVG?: Array<GQLCertificateSVG | null>
-  getFormDraft?: Array<GQLFormDraft>
+  getFormDraft: Array<GQLFormDraft>
 }
 
 export interface GQLMutation {
@@ -79,8 +79,8 @@ export interface GQLMutation {
   resendSMSInvite?: string
   createOrUpdateCertificateSVG?: GQLCertificateSVG
   updateApplicationConfig?: GQLApplicationConfiguration
-  createFormDraft?: GQLFormDraft
-  modifyDraftStatus?: GQLFormDraft
+  createFormDraft: GQLFormDraft
+  modifyDraftStatus: GQLFormDraft
 }
 
 export interface GQLDummy {
@@ -353,12 +353,12 @@ export interface GQLCertificateSVG {
 }
 
 export interface GQLFormDraft {
-  _id?: string
+  _id: string
   event: string
-  status: string
-  comment?: string
+  status: GQLDraftStatus
+  comment: string
   version: number
-  history?: Array<GQLDraftHistory>
+  history: Array<GQLDraftHistory>
   updatedAt: GQLDate
   createdAt: GQLDate
 }
@@ -522,9 +522,9 @@ export interface GQLFormDraftInput {
   comment: string
 }
 
-export interface GQLFormDraftStatusModify {
+export interface GQLFormDraftStatusModifyInput {
   event: string
-  status: string
+  status: GQLDraftStatus
 }
 
 export type GQLMap = any
@@ -805,12 +805,19 @@ export interface GQLEventProgressSet {
   progressReport?: GQLEventProgressData
 }
 
+export const enum GQLDraftStatus {
+  DRAFT = 'DRAFT',
+  IN_PREVIEW = 'IN_PREVIEW',
+  PUBLISHED = 'PUBLISHED',
+  DELETED = 'DELETED'
+}
+
 export interface GQLDraftHistory {
-  _id?: string
-  version?: number
-  status?: string
-  comment?: string
-  updatedAt?: GQLDate
+  _id: string
+  version: number
+  status: GQLDraftStatus
+  comment: string
+  updatedAt: GQLDate
 }
 
 export interface GQLPersonInput {
@@ -2491,7 +2498,7 @@ export interface MutationToCreateFormDraftResolver<
 }
 
 export interface MutationToModifyDraftStatusArgs {
-  formDraft: GQLFormDraftStatusModify
+  formDraft: GQLFormDraftStatusModifyInput
 }
 export interface MutationToModifyDraftStatusResolver<
   TParent = any,

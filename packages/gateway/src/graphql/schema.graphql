@@ -141,7 +141,7 @@ type Query {
   ): [Role]
   getCertificateSVG(status: String, event: String): CertificateSVG
   getActiveCertificatesSVG: [CertificateSVG]
-  getFormDraft: [FormDraft!]
+  getFormDraft: [FormDraft!]!
 }
 
 type Mutation {
@@ -214,8 +214,8 @@ type Mutation {
   updateApplicationConfig(
     applicationConfig: ApplicationConfigurationInput
   ): ApplicationConfiguration
-  createFormDraft(formDraft: FormDraftInput!): FormDraft
-  modifyDraftStatus(formDraft: FormDraftStatusModify!): FormDraft
+  createFormDraft(formDraft: FormDraftInput!): FormDraft!
+  modifyDraftStatus(formDraft: FormDraftStatusModifyInput!): FormDraft!
 }
 
 type Dummy {
@@ -477,12 +477,12 @@ type CertificateSVG {
 }
 
 type FormDraft {
-  _id: ID
+  _id: ID!
   event: String!
-  status: String!
-  comment: String
+  status: DraftStatus!
+  comment: String!
   version: Int!
-  history: [DraftHistory!]
+  history: [DraftHistory!]!
   updatedAt: Date!
   createdAt: Date!
 }
@@ -646,9 +646,9 @@ input FormDraftInput {
   comment: String!
 }
 
-input FormDraftStatusModify {
+input FormDraftStatusModifyInput {
   event: String!
-  status: String!
+  status: DraftStatus!
 }
 
 scalar Map
@@ -918,12 +918,19 @@ type EventProgressSet {
   progressReport: EventProgressData
 }
 
+enum DraftStatus {
+  DRAFT
+  IN_PREVIEW
+  PUBLISHED
+  DELETED
+}
+
 type DraftHistory {
-  _id: ID
-  version: Int
-  status: String
-  comment: String
-  updatedAt: Date
+  _id: ID!
+  version: Int!
+  status: DraftStatus!
+  comment: String!
+  updatedAt: Date!
 }
 
 input PersonInput {
