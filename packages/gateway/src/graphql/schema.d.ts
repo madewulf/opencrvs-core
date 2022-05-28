@@ -46,7 +46,7 @@ export interface GQLQuery {
   getRoles?: Array<GQLRole | null>
   getCertificateSVG?: GQLCertificateSVG
   getActiveCertificatesSVG?: Array<GQLCertificateSVG | null>
-  getFormDraft: Array<GQLFormDraft>
+  getFormDraft?: Array<GQLFormDraft>
 }
 
 export interface GQLMutation {
@@ -79,9 +79,9 @@ export interface GQLMutation {
   resendSMSInvite?: string
   createOrUpdateCertificateSVG?: GQLCertificateSVG
   updateApplicationConfig?: GQLApplicationConfiguration
-  createFormDraft: GQLFormDraft
-  modifyDraftStatus: GQLFormDraft
-  deleteFormDraft?: GQLRegistrationType
+  createFormDraft?: GQLFormDraft
+  modifyDraftStatus?: GQLFormDraft
+  deleteFormDraft?: string
 }
 
 export interface GQLDummy {
@@ -355,7 +355,7 @@ export interface GQLCertificateSVG {
 
 export interface GQLFormDraft {
   _id: string
-  event: GQLRegistrationType
+  event: string
   status: GQLDraftStatus
   comment: string
   version: number
@@ -519,22 +519,17 @@ export interface GQLApplicationConfigurationInput {
 
 export interface GQLFormDraftInput {
   questions: Array<GQLQuestionInput>
-  event: GQLRegistrationType
+  event: string
   comment: string
 }
 
 export interface GQLFormDraftStatusModifyInput {
-  event: GQLRegistrationType
+  event: string
   status: GQLDraftStatus
 }
 
-export const enum GQLRegistrationType {
-  BIRTH = 'BIRTH',
-  DEATH = 'DEATH'
-}
-
 export interface GQLDeleteFormDraftInput {
-  event: GQLRegistrationType
+  event: string
 }
 
 export type GQLMap = any
@@ -1028,6 +1023,11 @@ export interface GQLRegWorkflow {
   location?: GQLLocation
   office?: GQLLocation
   timeLogged?: number
+}
+
+export const enum GQLRegistrationType {
+  BIRTH = 'BIRTH',
+  DEATH = 'DEATH'
 }
 
 export interface GQLCertificate {

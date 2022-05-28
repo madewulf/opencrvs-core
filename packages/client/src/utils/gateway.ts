@@ -150,7 +150,7 @@ export type AttachmentInput = {
   _fhirID?: InputMaybe<Scalars['ID']>
   contentType?: InputMaybe<Scalars['String']>
   createdAt?: InputMaybe<Scalars['Date']>
-  data?: InputMaybe<Scalars['String']>
+  data: Scalars['String']
   description?: InputMaybe<Scalars['String']>
   originalFileName?: InputMaybe<Scalars['String']>
   status?: InputMaybe<Scalars['String']>
@@ -385,6 +385,17 @@ export type CommentInput = {
   user?: InputMaybe<UserInput>
 }
 
+export type ComparisonInput = {
+  eq?: InputMaybe<Scalars['String']>
+  gt?: InputMaybe<Scalars['String']>
+  gte?: InputMaybe<Scalars['String']>
+  in?: InputMaybe<Array<Scalars['String']>>
+  lt?: InputMaybe<Scalars['String']>
+  lte?: InputMaybe<Scalars['String']>
+  ne?: InputMaybe<Scalars['String']>
+  nin?: InputMaybe<Array<Scalars['String']>>
+}
+
 export type ContactPoint = {
   __typename?: 'ContactPoint'
   system?: Maybe<Scalars['String']>
@@ -549,13 +560,23 @@ export type DeclarationsStartedMetrics = {
   officeDeclarations: Scalars['Int']
 }
 
+export type DeleteFormDraftInput = {
+  event: Scalars['String']
+}
+
 export type DraftHistory = {
   __typename?: 'DraftHistory'
-  _id?: Maybe<Scalars['ID']>
-  comment?: Maybe<Scalars['String']>
-  status?: Maybe<Scalars['String']>
-  updatedAt?: Maybe<Scalars['Date']>
-  version?: Maybe<Scalars['Int']>
+  _id: Scalars['ID']
+  comment: Scalars['String']
+  status: DraftStatus
+  updatedAt: Scalars['Date']
+  version: Scalars['Int']
+}
+
+export enum DraftStatus {
+  Draft = 'DRAFT',
+  InPreview = 'IN_PREVIEW',
+  Published = 'PUBLISHED'
 }
 
 export type Dummy = {
@@ -641,14 +662,23 @@ export type EventSearchSet = {
   type?: Maybe<Scalars['String']>
 }
 
+export enum FieldType {
+  Number = 'NUMBER',
+  Paragraph = 'PARAGRAPH',
+  Subsection = 'SUBSECTION',
+  Tel = 'TEL',
+  Text = 'TEXT',
+  Textarea = 'TEXTAREA'
+}
+
 export type FormDraft = {
   __typename?: 'FormDraft'
-  _id?: Maybe<Scalars['ID']>
-  comment?: Maybe<Scalars['String']>
+  _id: Scalars['ID']
+  comment: Scalars['String']
   createdAt: Scalars['Date']
   event: Scalars['String']
-  history?: Maybe<Array<DraftHistory>>
-  status: Scalars['String']
+  history: Array<DraftHistory>
+  status: DraftStatus
   updatedAt: Scalars['Date']
   version: Scalars['Int']
 }
@@ -659,9 +689,9 @@ export type FormDraftInput = {
   questions: Array<QuestionInput>
 }
 
-export type FormDraftStatusModify = {
+export type FormDraftStatusModifyInput = {
   event: Scalars['String']
-  status: Scalars['String']
+  status: DraftStatus
 }
 
 export type History = {
@@ -858,19 +888,6 @@ export type MedicalPractitionerInput = {
   qualification?: InputMaybe<Scalars['String']>
 }
 
-export type Messsage = {
-  __typename?: 'Messsage'
-  descriptor: MesssageDescriptor
-  lang: Scalars['String']
-}
-
-export type MesssageDescriptor = {
-  __typename?: 'MesssageDescriptor'
-  defaultMessage: Scalars['String']
-  description: Scalars['String']
-  id: Scalars['String']
-}
-
 export type MesssageDescriptorInput = {
   defaultMessage: Scalars['String']
   description?: InputMaybe<Scalars['String']>
@@ -905,8 +922,8 @@ export type Mutation = {
   createFormDraft?: Maybe<FormDraft>
   createNotification: Notification
   createOrUpdateCertificateSVG?: Maybe<CertificateSvg>
-  createOrUpdateQuestion?: Maybe<Question>
   createOrUpdateUser: User
+  deleteFormDraft?: Maybe<Scalars['String']>
   markBirthAsCertified: Scalars['ID']
   markBirthAsRegistered: BirthRegistration
   markBirthAsValidated?: Maybe<Scalars['ID']>
@@ -980,12 +997,12 @@ export type MutationCreateOrUpdateCertificateSvgArgs = {
   certificateSVG: CertificateSvgInput
 }
 
-export type MutationCreateOrUpdateQuestionArgs = {
-  question: QuestionInput
-}
-
 export type MutationCreateOrUpdateUserArgs = {
   user: UserInput
+}
+
+export type MutationDeleteFormDraftArgs = {
+  formDraft: DeleteFormDraftInput
 }
 
 export type MutationMarkBirthAsCertifiedArgs = {
@@ -1043,7 +1060,7 @@ export type MutationMarkEventAsVoidedArgs = {
 }
 
 export type MutationModifyDraftStatusArgs = {
-  formDraft: FormDraftStatusModify
+  formDraft: FormDraftStatusModifyInput
 }
 
 export type MutationNotADuplicateArgs = {
@@ -1180,7 +1197,7 @@ export type PersonInput = {
   name?: InputMaybe<Array<InputMaybe<HumanNameInput>>>
   nationality?: InputMaybe<Array<InputMaybe<Scalars['String']>>>
   occupation?: InputMaybe<Scalars['String']>
-  photo?: InputMaybe<Array<InputMaybe<AttachmentInput>>>
+  photo?: InputMaybe<Array<AttachmentInput>>
   reasonNotApplying?: InputMaybe<Scalars['String']>
   telecom?: InputMaybe<Array<InputMaybe<ContactPointInput>>>
 }
@@ -1201,7 +1218,6 @@ export type Query = {
   getEventsWithProgress?: Maybe<EventProgressResultSet>
   getFormDraft?: Maybe<Array<FormDraft>>
   getLocationStatistics?: Maybe<LocationStatisticsResponse>
-  getQuestions?: Maybe<Array<Maybe<Question>>>
   getRoles?: Maybe<Array<Maybe<Role>>>
   getTotalCertifications?: Maybe<Array<CertificationMetric>>
   getTotalCorrections?: Maybe<Array<CorrectionMetric>>
@@ -1300,7 +1316,7 @@ export type QueryGetRolesArgs = {
   sortOrder?: InputMaybe<Scalars['String']>
   title?: InputMaybe<Scalars['String']>
   type?: InputMaybe<Scalars['String']>
-  value?: InputMaybe<Scalars['String']>
+  value?: InputMaybe<ComparisonInput>
 }
 
 export type QueryGetTotalCertificationsArgs = {
@@ -1438,25 +1454,6 @@ export type QueryVerifyPasswordByIdArgs = {
   password: Scalars['String']
 }
 
-export type Question = {
-  __typename?: 'Question'
-  _id: Scalars['ID']
-  custom?: Maybe<Scalars['Boolean']>
-  description?: Maybe<Array<Messsage>>
-  enabled?: Maybe<Scalars['String']>
-  errorMessage?: Maybe<Array<Messsage>>
-  fieldId: Scalars['String']
-  fieldName?: Maybe<Scalars['String']>
-  fieldType?: Maybe<Scalars['String']>
-  initialValue?: Maybe<Scalars['String']>
-  label?: Maybe<Array<Messsage>>
-  maxLength?: Maybe<Scalars['Int']>
-  placeholder?: Maybe<Array<Messsage>>
-  preceedingFieldId?: Maybe<Scalars['String']>
-  required?: Maybe<Scalars['Boolean']>
-  tooltip?: Maybe<Array<Messsage>>
-}
-
 export type QuestionInput = {
   custom?: InputMaybe<Scalars['Boolean']>
   description?: InputMaybe<Array<MesssageInput>>
@@ -1464,9 +1461,7 @@ export type QuestionInput = {
   errorMessage?: InputMaybe<Array<MesssageInput>>
   fieldId: Scalars['String']
   fieldName?: InputMaybe<Scalars['String']>
-  fieldType?: InputMaybe<Scalars['String']>
-  id?: InputMaybe<Scalars['ID']>
-  initialValue?: InputMaybe<Scalars['String']>
+  fieldType?: InputMaybe<FieldType>
   label?: InputMaybe<Array<MesssageInput>>
   maxLength?: InputMaybe<Scalars['Int']>
   placeholder?: InputMaybe<Array<MesssageInput>>
@@ -1554,7 +1549,7 @@ export type RegistrationCountResult = {
 
 export type RegistrationInput = {
   _fhirID?: InputMaybe<Scalars['ID']>
-  attachments?: InputMaybe<Array<InputMaybe<AttachmentInput>>>
+  attachments?: InputMaybe<Array<AttachmentInput>>
   book?: InputMaybe<Scalars['String']>
   certificates?: InputMaybe<Array<InputMaybe<CertificateInput>>>
   contact?: InputMaybe<Scalars['String']>
@@ -1614,7 +1609,7 @@ export type RelatedPerson = {
 
 export type RelatedPersonInput = {
   _fhirID?: InputMaybe<Scalars['ID']>
-  affidavit?: InputMaybe<Array<InputMaybe<AttachmentInput>>>
+  affidavit?: InputMaybe<Array<AttachmentInput>>
   id?: InputMaybe<Scalars['ID']>
   individual?: InputMaybe<PersonInput>
   otherRelationship?: InputMaybe<Scalars['String']>
@@ -1669,7 +1664,7 @@ export type Signature = {
 }
 
 export type SignatureInput = {
-  data?: InputMaybe<Scalars['String']>
+  data: Scalars['String']
   type?: InputMaybe<Scalars['String']>
 }
 
@@ -1719,6 +1714,7 @@ export type User = {
   practitionerId?: Maybe<Scalars['String']>
   primaryOffice?: Maybe<Location>
   role?: Maybe<Scalars['String']>
+  signature?: Maybe<Signature>
   status?: Maybe<Scalars['String']>
   type?: Maybe<Scalars['String']>
   underInvestigation?: Maybe<Scalars['Boolean']>
@@ -1790,18 +1786,18 @@ export type GetActiveCertificatesSvgQuery = {
 export type FormDraftFieldsFragment = {
   __typename?: 'FormDraft'
   event: string
-  status: string
-  comment?: string | null
+  status: DraftStatus
+  comment: string
   version: number
   createdAt: any
   updatedAt: any
-  history?: Array<{
+  history: Array<{
     __typename?: 'DraftHistory'
-    status?: string | null
-    version?: number | null
-    comment?: string | null
-    updatedAt?: any | null
-  }> | null
+    status: DraftStatus
+    version: number
+    comment: string
+    updatedAt: any
+  }>
 }
 
 export type RequestBirthRegistrationCorrectionMutationVariables = Exact<{
@@ -1907,7 +1903,9 @@ export type CreateOrUpdateUserMutation = {
   createOrUpdateUser: { __typename?: 'User'; username?: string | null }
 }
 
-export type GetRolesQueryVariables = Exact<{ [key: string]: never }>
+export type GetRolesQueryVariables = Exact<{
+  value?: InputMaybe<ComparisonInput>
+}>
 
 export type GetRolesQuery = {
   __typename?: 'Query'
@@ -4522,7 +4520,11 @@ export type UpdateApplicationConfigMutation = {
 
 export type ChangeStatusMutationVariables = Exact<{
   event: Scalars['String']
-  status: Scalars['String']
+  status: DraftStatus
+}>
+
+export type DeleteFormDraftMutationVariables = Exact<{
+  event: Scalars['String']
 }>
 
 export type ChangeStatusMutation = {
@@ -4530,18 +4532,18 @@ export type ChangeStatusMutation = {
   modifyDraftStatus?: {
     __typename?: 'FormDraft'
     event: string
-    status: string
-    comment?: string | null
+    status: DraftStatus
+    comment: string
     version: number
     createdAt: any
     updatedAt: any
-    history?: Array<{
+    history: Array<{
       __typename?: 'DraftHistory'
-      status?: string | null
-      version?: number | null
-      comment?: string | null
-      updatedAt?: any | null
-    }> | null
+      status: DraftStatus
+      version: number
+      comment: string
+      updatedAt: any
+    }>
   } | null
 }
 
@@ -4556,18 +4558,18 @@ export type CreateFormDraftMutation = {
   createFormDraft?: {
     __typename?: 'FormDraft'
     event: string
-    status: string
-    comment?: string | null
+    status: DraftStatus
+    comment: string
     version: number
     createdAt: any
     updatedAt: any
-    history?: Array<{
+    history: Array<{
       __typename?: 'DraftHistory'
-      status?: string | null
-      version?: number | null
-      comment?: string | null
-      updatedAt?: any | null
-    }> | null
+      status: DraftStatus
+      version: number
+      comment: string
+      updatedAt: any
+    }>
   } | null
 }
 

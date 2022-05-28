@@ -21,6 +21,12 @@ export const CHANGE_FORM_DRAFT_STATUS = gql`
   }
 `
 
+export const DELETE_FORM_DRAFT = gql`
+  mutation deleteFormDraft($event: String!) {
+    deleteFormDraft(formDraft: { event: $event })
+  }
+`
+
 export const CREATE_FORM_DRAFT = gql`
   ${FORM_DRAFT_FIELDS}
   mutation createFormDraft(

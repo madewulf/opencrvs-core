@@ -70,7 +70,7 @@ function EventDrafts({ event }: { event: Event }) {
       label={<DraftVersion event={event} version={version} />}
       value={
         <Value>
-          {status === DraftStatus.DRAFT || status === DraftStatus.DELETED
+          {status === DraftStatus.DRAFT
             ? intl.formatMessage(messages.defaultComment)
             : intl.formatMessage(messages.previewDate, {
                 updatedAt

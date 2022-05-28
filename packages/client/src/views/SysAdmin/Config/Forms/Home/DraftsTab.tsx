@@ -41,7 +41,7 @@ import { ActionContext, Actions } from './ActionsModal'
 import { FormConfigMobileViewModal } from './FormConfigMobileViewModal'
 import { isMobileDevice } from '@client/utils/commonUtils'
 
-function ActionButton({ event, status, version }: IFormDraft) {
+function ActionButton({ event, version }: IFormDraft) {
   const intl = useIntl()
   const dispatch = useDispatch()
   const [showMobileModal, setMobileModal] = React.useState(false)
@@ -65,7 +65,7 @@ function ActionButton({ event, status, version }: IFormDraft) {
         }}
       >
         {intl.formatMessage(
-          isDefaultDraft({ version }) || status === DraftStatus.DELETED
+          isDefaultDraft({ version })
             ? buttonMessages.configure
             : buttonMessages.edit
         )}
@@ -121,9 +121,7 @@ function EventDrafts({ event }: { event: Event }) {
   const actions = (
     <>
       <ActionButton {...formDraft} />
-      {!isDefaultDraft(formDraft) && status !== DraftStatus.DELETED && (
-        <OptionsMenu event={event} />
-      )}
+      {!isDefaultDraft(formDraft) && <OptionsMenu event={event} />}
     </>
   )
 
@@ -140,7 +138,7 @@ function EventDrafts({ event }: { event: Event }) {
           </Value>
         }
         actions={
-          status === DraftStatus.DRAFT || status === DraftStatus.DELETED ? (
+          status === DraftStatus.DRAFT ? (
             actions
           ) : status === DraftStatus.PREVIEW ? (
             <Pill

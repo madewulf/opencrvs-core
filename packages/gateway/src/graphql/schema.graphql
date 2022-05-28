@@ -141,7 +141,7 @@ type Query {
   ): [Role]
   getCertificateSVG(status: String, event: String): CertificateSVG
   getActiveCertificatesSVG: [CertificateSVG]
-  getFormDraft: [FormDraft!]!
+  getFormDraft: [FormDraft!]
 }
 
 type Mutation {
@@ -214,9 +214,9 @@ type Mutation {
   updateApplicationConfig(
     applicationConfig: ApplicationConfigurationInput
   ): ApplicationConfiguration
-  createFormDraft(formDraft: FormDraftInput!): FormDraft!
-  modifyDraftStatus(formDraft: FormDraftStatusModifyInput!): FormDraft!
-  deleteFormDraft(formDraft: DeleteFormDraftInput!): RegistrationType
+  createFormDraft(formDraft: FormDraftInput!): FormDraft
+  modifyDraftStatus(formDraft: FormDraftStatusModifyInput!): FormDraft
+  deleteFormDraft(formDraft: DeleteFormDraftInput!): String
 }
 
 type Dummy {
@@ -479,7 +479,7 @@ type CertificateSVG {
 
 type FormDraft {
   _id: ID!
-  event: RegistrationType!
+  event: String!
   status: DraftStatus!
   comment: String!
   version: Int!
@@ -643,22 +643,17 @@ input ApplicationConfigurationInput {
 
 input FormDraftInput {
   questions: [QuestionInput!]!
-  event: RegistrationType!
+  event: String!
   comment: String!
 }
 
 input FormDraftStatusModifyInput {
-  event: RegistrationType!
+  event: String!
   status: DraftStatus!
 }
 
-enum RegistrationType {
-  BIRTH
-  DEATH
-}
-
 input DeleteFormDraftInput {
-  event: RegistrationType!
+  event: String!
 }
 
 scalar Map
@@ -1141,6 +1136,11 @@ type RegWorkflow {
   location: Location
   office: Location
   timeLogged: Int
+}
+
+enum RegistrationType {
+  BIRTH
+  DEATH
 }
 
 type Certificate {

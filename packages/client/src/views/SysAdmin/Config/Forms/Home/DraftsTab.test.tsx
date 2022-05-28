@@ -76,30 +76,6 @@ describe('DraftsTab', () => {
     expect(component.exists('DraftsTab')).toBeTruthy()
   })
 
-  describe('when Draft status is DELETED', () => {
-    const deletedDraft: IFormDraft = {
-      event: Event.BIRTH,
-      status: DraftStatus.DELETED,
-      version: 1,
-      history: draftHistory,
-      updatedAt: Date.now(),
-      createdAt: Date.now()
-    }
-
-    beforeEach(() => {
-      store.dispatch(updateFormConfig(deletedDraft))
-      component.update()
-    })
-
-    it('show not show options menu', () => {
-      expect(component.exists('OptionsMenu')).toBeFalsy()
-    })
-
-    it('should not show status Pill', () => {
-      expect(component.exists('Pill')).toBeFalsy()
-    })
-  })
-
   describe('when Draft status is DRAFT', () => {
     it('should not show options menu', () => {
       expect(component.exists('OptionsMenu')).toBeFalsy()

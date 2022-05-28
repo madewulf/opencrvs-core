@@ -15,8 +15,26 @@ import { Event } from '@client/forms'
 export enum DraftStatus {
   DRAFT = 'DRAFT',
   PREVIEW = 'IN_PREVIEW',
-  PUBLISHED = 'PUBLISHED',
-  DELETED = 'DELETED'
+  PUBLISHED = 'PUBLISHED'
+}
+
+export const DEFAULT_FORM_DRAFT = {
+  [Event.BIRTH]: {
+    version: 0,
+    status: DraftStatus.DRAFT,
+    event: Event.BIRTH,
+    history: [],
+    createdAt: Date.now(),
+    updatedAt: Date.now()
+  },
+  [Event.DEATH]: {
+    version: 0,
+    status: DraftStatus.DRAFT,
+    event: Event.DEATH,
+    history: [],
+    createdAt: Date.now(),
+    updatedAt: Date.now()
+  }
 }
 
 export interface IDraftHistory {
