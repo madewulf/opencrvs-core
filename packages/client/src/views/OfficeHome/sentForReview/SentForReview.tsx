@@ -37,7 +37,7 @@ import { withTheme, ITheme } from '@client/styledComponents'
 import { getDraftInformantFullName } from '@client/utils/draftUtils'
 import { navigationMessages } from '@client/i18n/messages/views/navigation'
 import { formattedDuration } from '@client/utils/date-formatting'
-import { Event } from '@client/forms'
+import { Event } from '@client/utils/gateway'
 import {
   getSortedItems,
   changeSortedColumn
@@ -152,7 +152,7 @@ class SentForReviewComponent extends React.Component<IFullProps, IState> {
 
       const date =
         draft &&
-        (draft.event === Event.BIRTH
+        (draft.event === Event.Birth
           ? draft.data.child?.childBirthDate
           : draft.data.deathEvent?.deathDate || draft.data.deceased?.deathDate)
       const savedDate =

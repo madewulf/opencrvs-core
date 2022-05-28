@@ -19,7 +19,7 @@ import { ReactWrapper } from 'enzyme'
 import * as locationUtils from '@client/utils/locationUtils'
 import { waitForElement } from '@client/tests/wait-for-element'
 import { StatusMapping } from '@client/views/SysAdmin/Performance/WorkflowStatus'
-import { Event } from '@client/forms'
+import { Event } from '@client/utils/gateway'
 
 describe('Status wise registration count', () => {
   const { store, history } = createStore()
@@ -44,7 +44,7 @@ describe('Status wise registration count', () => {
       }
       component = await createTestComponent(
         <StatusWiseDeclarationCountView
-          selectedEvent={Event.BIRTH}
+          selectedEvent={Event.Birth}
           data={data}
           locationId={'c879ce5c-545b-4042-98a6-77015b0e13df'}
           statusMapping={StatusMapping}

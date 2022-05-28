@@ -47,7 +47,8 @@ import { formatLongDate } from '@client/utils/date-formatting'
 import { certificateTemplateMutations } from '@client/certificate/mutations'
 import { getScope, getUserDetails } from '@client/profile/profileSelectors'
 import { IUserDetails } from '@client/utils/userUtils'
-import { Event, IAttachmentValue, IFormFieldValue, IForm } from '@client/forms'
+import { IAttachmentValue, IFormFieldValue, IForm } from '@client/forms'
+import { Event } from '@client/utils/gateway'
 import { DocumentPreview } from '@client/components/form/DocumentUploadfield/DocumentPreview'
 import { getDummyCertificateTemplateData } from './previewDummyData'
 import { getRegisterForm } from '@client/forms/register/declaration-selectors'
@@ -575,9 +576,9 @@ class CertificatesConfigComponent extends React.Component<Props, State> {
                         key="continue"
                         onClick={() => {
                           this.togglePrompt()
-                          if (eventName === Event.BIRTH)
+                          if (eventName === Event.Birth)
                             this.birthCertificatefileUploader.current!.click()
-                          else if (eventName === Event.DEATH)
+                          else if (eventName === Event.Death)
                             this.deathCertificatefileUploader.current!.click()
                         }}
                       >
@@ -596,7 +597,7 @@ class CertificatesConfigComponent extends React.Component<Props, State> {
                       previewImage={this.state.previewImage}
                       disableDelete={true}
                       title={
-                        eventName === Event.BIRTH
+                        eventName === Event.Birth
                           ? intl.formatMessage(messages.birthTemplate)
                           : intl.formatMessage(messages.deathTemplate)
                       }

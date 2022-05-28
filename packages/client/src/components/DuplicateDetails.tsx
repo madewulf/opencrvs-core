@@ -49,11 +49,7 @@ import { withApollo, WithApolloClient } from 'react-apollo'
 import { injectIntl, WrappedComponentProps as IntlShapeProps } from 'react-intl'
 import { connect } from 'react-redux'
 import format from 'date-fns/format'
-
-export enum Event {
-  BIRTH = 'BIRTH',
-  DEATH = 'DEATH'
-}
+import { Event } from '@client/utils/gateway'
 
 export enum Action {
   ARCHIVED = 'ARCHIVED',

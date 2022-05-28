@@ -11,12 +11,12 @@
  */
 import {
   IFormData,
-  Event,
   TransformedData,
   IFormField,
   IFormFieldQueryMapFunction,
   IQuestionnaireQuestion
 } from '@client/forms'
+import { Event } from '@client/utils/gateway'
 import {
   GQLRegWorkflow,
   GQLRegStatus
@@ -97,7 +97,7 @@ export function getBirthRegistrationSectionTransformer(
   }
 
   if (queryData[sectionId].type && queryData[sectionId].type === 'BIRTH') {
-    transformedData[sectionId].type = Event.BIRTH
+    transformedData[sectionId].type = Event.Birth
   }
 
   if (queryData[sectionId].status) {

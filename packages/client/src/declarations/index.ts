@@ -11,13 +11,13 @@
  */
 import {
   Action as DeclarationAction,
-  Event,
   IForm,
   IFormData,
   IFormFieldValue,
   IContactPoint,
   Sort
 } from '@client/forms'
+import { Event } from '@client/utils/gateway'
 import { getRegisterForm } from '@client/forms/register/declaration-selectors'
 import { syncRegistrarWorkqueue } from '@client/ListSyncController'
 import { Action as NavigationAction, GO_TO_PAGE } from '@client/navigation'
@@ -42,7 +42,6 @@ import { EVENT_STATUS, IQueryData } from '@client/views/OfficeHome/OfficeHome'
 import {
   GQLEventSearchResultSet,
   GQLEventSearchSet,
-  GQLHumanName,
   GQLBirthEventSearchSet,
   GQLDeathEventSearchSet,
   GQLRegistrationSearchSet

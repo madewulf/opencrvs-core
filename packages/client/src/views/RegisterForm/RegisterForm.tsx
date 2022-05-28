@@ -45,7 +45,6 @@ import {
 } from '@client/components/form'
 import { RejectRegistrationForm } from '@client/components/review/RejectRegistrationForm'
 import {
-  Event,
   IForm,
   IFormField,
   IFormSection,
@@ -55,6 +54,7 @@ import {
   CorrectionSection,
   IFormFieldValue
 } from '@client/forms'
+import { Event } from '@client/utils/gateway'
 import {
   goBack as goBackAction,
   goToCertificateCorrection,
@@ -397,11 +397,11 @@ class RegisterFormView extends React.Component<FullProps, State> {
     const eventType = this.props.declaration.event || 'BIRTH'
     switch (eventType.toLocaleLowerCase()) {
       case 'birth':
-        return Event.BIRTH
+        return Event.Birth
       case 'death':
-        return Event.DEATH
+        return Event.Death
       default:
-        return Event.BIRTH
+        return Event.Birth
     }
   }
 

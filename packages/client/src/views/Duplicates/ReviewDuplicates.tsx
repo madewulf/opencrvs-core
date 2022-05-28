@@ -27,7 +27,7 @@ import {
 } from 'react-intl'
 import { REGISTRAR_HOME } from '@client/navigation/routes'
 import { DuplicateDetails, Action } from '@client/components/DuplicateDetails'
-import { Event } from '@client/forms'
+import { Event } from '@client/utils/gateway'
 import { NotDuplicateConfirmation } from '@client/views/Duplicates/NotDuplicateConfirmation'
 import { RouteComponentProps } from 'react-router'
 
@@ -277,10 +277,11 @@ class ReviewDuplicatesClass extends React.Component<Props, IState> {
         dateOfDeclaration: rec.createdAt,
         trackingId: (rec.registration && rec.registration.trackingId) || '',
         event:
-          (rec.registration &&
-            rec.registration.type &&
-            Event[rec.registration.type]) ||
-          Event.BIRTH,
+          rec.registration &&
+          rec.registration.type &&
+          rec.registration.type === Event.Birth.toUpperCase()
+            ? Event.Birth
+            : Event.Death,
         child: {
           name: childNamesMap[language],
           dob:

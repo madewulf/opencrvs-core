@@ -31,7 +31,7 @@ import {
   SUBMISSION_STATUS,
   DOWNLOAD_STATUS
 } from '@client/declarations'
-import { Event } from '@client/forms'
+import { Event } from '@client/utils/gateway'
 import { formatUrl } from '@client/navigation'
 import { DECLARATION_RECORD_AUDIT } from '@client/navigation/routes'
 import { GQLBirthEventSearchSet } from '@opencrvs/gateway/src/graphql/schema'
@@ -40,7 +40,7 @@ import { FETCH_DECLARATION_SHORT_INFO } from './queries'
 import { waitForElement } from '@client/tests/wait-for-element'
 
 const declaration: IDeclaration = createDeclaration(
-  Event.BIRTH,
+  Event.Birth,
   mockDeclarationData
 )
 declaration.data.registration = {
@@ -115,7 +115,7 @@ describe('Record audit summary for a draft death declaration', () => {
   beforeEach(async () => {
     const { store, history } = createStore()
     const deathDeclaration = createDeclaration(
-      Event.DEATH,
+      Event.Death,
       mockDeathDeclarationData
     )
 
