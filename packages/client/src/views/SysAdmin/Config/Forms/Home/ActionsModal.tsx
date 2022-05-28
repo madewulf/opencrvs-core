@@ -35,7 +35,7 @@ import {
   Event,
   Mutation as GQLMutation,
   DeleteFormDraftMutationVariables,
-  ChangeStatusMutationVariables
+  ChangeFormDraftStatusMutationVariables
 } from '@client/utils/gateway'
 import { ActionStatus } from '@client/views/SysAdmin/Config/Forms/utils'
 import { updateFormConfig } from '@client/forms/configuration/formConfig/actions'
@@ -98,7 +98,7 @@ function ActionButton() {
   return (
     <Mutation<
       GQLMutation,
-      DeleteFormDraftMutationVariables | ChangeStatusMutationVariables
+      DeleteFormDraftMutationVariables | ChangeFormDraftStatusMutationVariables
     >
       mutation={
         action === Actions.DELETE ? DELETE_FORM_DRAFT : CHANGE_FORM_DRAFT_STATUS

@@ -991,7 +991,7 @@ export interface GQLQuestionInput {
   errorMessage?: Array<GQLMesssageInput>
   maxLength?: number
   fieldName?: string
-  fieldType?: GQLFieldType
+  fieldType?: GQLCustomFieldType
   preceedingFieldId?: string
   required?: boolean
   enabled?: string
@@ -1265,7 +1265,7 @@ export interface GQLMesssageInput {
   descriptor: GQLMesssageDescriptorInput
 }
 
-export const enum GQLFieldType {
+export const enum GQLCustomFieldType {
   TEXT = 'TEXT',
   TEL = 'TEL',
   TEXTAREA = 'TEXTAREA',
