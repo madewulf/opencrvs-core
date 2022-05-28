@@ -16,10 +16,8 @@ import { createTestComponent } from '@client/tests/util'
 import { DraftsTab } from './DraftsTab'
 import { History } from 'history'
 import { updateFormConfig } from '@client/forms/configuration/formConfig/actions'
-import {
-  IFormDraft,
-  DraftStatus
-} from '@client/forms/configuration/formDrafts/utils'
+import { IFormDraft } from '@client/forms/configuration/formDrafts/utils'
+import { DraftStatus } from '@client/utils/gateway'
 import { Event } from '@client/forms'
 import {
   ActionState,
@@ -32,12 +30,12 @@ let component: ReactWrapper<{}, {}>
 
 const draftHistory = [
   {
-    status: DraftStatus.DRAFT,
+    status: DraftStatus.Draft,
     version: 1,
     updatedAt: Date.now()
   },
   {
-    status: DraftStatus.DRAFT,
+    status: DraftStatus.Draft,
     version: 0,
     updatedAt: Date.now()
   }
@@ -89,7 +87,7 @@ describe('DraftsTab', () => {
       beforeEach(() => {
         const newDraft: IFormDraft = {
           event: Event.BIRTH,
-          status: DraftStatus.DRAFT,
+          status: DraftStatus.Draft,
           version: 1,
           history: draftHistory,
           updatedAt: Date.now(),
@@ -138,7 +136,7 @@ describe('DraftsTab', () => {
   describe('when DraftStatus status is IN_PREVIEW', () => {
     const inPreviewDraft: IFormDraft = {
       event: Event.BIRTH,
-      status: DraftStatus.PREVIEW,
+      status: DraftStatus.InPreview,
       version: 1,
       history: draftHistory,
       updatedAt: Date.now(),
@@ -158,7 +156,7 @@ describe('DraftsTab', () => {
   describe('when DraftStatus status is PUBLISHED', () => {
     const publishedDraft: IFormDraft = {
       event: Event.BIRTH,
-      status: DraftStatus.PUBLISHED,
+      status: DraftStatus.Published,
       version: 1,
       history: draftHistory,
       updatedAt: Date.now(),

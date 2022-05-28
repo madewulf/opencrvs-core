@@ -28,10 +28,8 @@ import { LinkButton } from '@opencrvs/components/lib/buttons'
 import { ToggleMenu, Pill } from '@opencrvs/components/lib/interface'
 import { VerticalThreeDots } from '@opencrvs/components/lib/icons'
 import { goToFormConfigWizard } from '@client/navigation'
-import {
-  DraftStatus,
-  IFormDraft
-} from '@client/forms/configuration/formDrafts/utils'
+import { IFormDraft } from '@client/forms/configuration/formDrafts/utils'
+import { DraftStatus } from '@client/utils/gateway'
 import { Value, DraftVersion } from './components'
 import {
   ActionStatus,
@@ -138,19 +136,19 @@ function EventDrafts({ event }: { event: Event }) {
           </Value>
         }
         actions={
-          status === DraftStatus.DRAFT ? (
+          status === DraftStatus.Draft ? (
             actions
-          ) : status === DraftStatus.PREVIEW ? (
+          ) : status === DraftStatus.InPreview ? (
             <Pill
               label={intl.formatMessage(
-                draftStatusMessages[DraftStatus.PREVIEW]
+                draftStatusMessages[DraftStatus.InPreview]
               )}
               type="active"
             />
           ) : (
             <Pill
               label={intl.formatMessage(
-                draftStatusMessages[DraftStatus.PUBLISHED]
+                draftStatusMessages[DraftStatus.Published]
               )}
               type="active"
             />

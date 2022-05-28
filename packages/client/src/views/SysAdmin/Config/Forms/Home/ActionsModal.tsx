@@ -31,10 +31,10 @@ import {
   DELETE_FORM_DRAFT
 } from '@client/views/SysAdmin/Config/Forms/mutations'
 import {
-  DraftStatus,
   IFormDraft,
   DEFAULT_FORM_DRAFT
 } from '@client/forms/configuration/formDrafts/utils'
+import { DraftStatus } from '@client/utils/gateway'
 import { ActionStatus } from '@client/views/SysAdmin/Config/Forms/utils'
 import { updateFormConfig } from '@client/forms/configuration/formConfig/actions'
 
@@ -76,9 +76,9 @@ const STATUS_CHANGE_MAP: Record<
   Exclude<Actions, Actions.DELETE>,
   DraftStatus
 > = {
-  [Actions.PUBLISH]: DraftStatus.PUBLISHED,
-  [Actions.PREVIEW]: DraftStatus.PREVIEW,
-  [Actions.EDIT]: DraftStatus.DRAFT
+  [Actions.PUBLISH]: DraftStatus.Published,
+  [Actions.PREVIEW]: DraftStatus.InPreview,
+  [Actions.EDIT]: DraftStatus.Draft
 }
 
 const ACTION_BUTTON_MESSAGE: Record<Actions, MessageDescriptor> = {
