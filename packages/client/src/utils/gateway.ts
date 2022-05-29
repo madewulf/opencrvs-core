@@ -1470,7 +1470,7 @@ export type QuestionInput = {
   label?: InputMaybe<Array<MesssageInput>>
   maxLength?: InputMaybe<Scalars['Int']>
   placeholder?: InputMaybe<Array<MesssageInput>>
-  preceedingFieldId?: InputMaybe<Scalars['String']>
+  precedingFieldId: Scalars['String']
   required?: InputMaybe<Scalars['Boolean']>
   tooltip?: InputMaybe<Array<MesssageInput>>
 }

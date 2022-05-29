@@ -54,7 +54,7 @@ describe('isDefaultField', () => {
       groupIndex: 0,
       sectionIndex: 0
     },
-    preceedingFieldId: 'dummy.precedingFieldId',
+    precedingFieldId: 'dummy.precedingFieldId',
     foregoingFieldId: 'dummy.foregoingFieldId'
   }
 
@@ -70,7 +70,7 @@ describe('isDefaultField', () => {
       }
     ],
     custom: true,
-    preceedingFieldId: 'dummy.precedingFieldId',
+    precedingFieldId: 'dummy.precedingFieldId',
     foregoingFieldId: 'dummy.foregoingFieldId'
   }
   it('should return true for defaultConfigField', () => {

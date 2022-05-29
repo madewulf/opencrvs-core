@@ -71,7 +71,7 @@ export enum AddressSubsections {
 }
 
 export interface IAddressConfiguration {
-  preceedingFieldId: string
+  precedingFieldId: string
   configurations: AllowedAddressConfigurations[]
 }
 
@@ -90,15 +90,15 @@ export type AllowedAddressConfigurations = {
 
 export const defaultAddressConfiguration: IAddressConfiguration[] = [
   {
-    preceedingFieldId: 'birth.child.child-view-group.birthLocation',
+    precedingFieldId: 'birth.child.child-view-group.birthLocation',
     configurations: [{ config: EventLocationAddressCases.PLACE_OF_BIRTH }]
   },
   {
-    preceedingFieldId: 'death.deathEvent.death-event-details.deathLocation',
+    precedingFieldId: 'death.deathEvent.death-event-details.deathLocation',
     configurations: [{ config: EventLocationAddressCases.PLACE_OF_DEATH }]
   },
   {
-    preceedingFieldId: 'birth.informant.informant-view-group.familyNameEng',
+    precedingFieldId: 'birth.informant.informant-view-group.familyNameEng',
     configurations: [
       {
         config: AddressSubsections.PRIMARY_ADDRESS_SUBSECTION,
@@ -118,7 +118,7 @@ export const defaultAddressConfiguration: IAddressConfiguration[] = [
     ]
   },
   {
-    preceedingFieldId: 'birth.mother.mother-view-group.educationalAttainment',
+    precedingFieldId: 'birth.mother.mother-view-group.educationalAttainment',
     configurations: [
       {
         config: AddressSubsections.PRIMARY_ADDRESS_SUBSECTION,
@@ -143,7 +143,7 @@ export const defaultAddressConfiguration: IAddressConfiguration[] = [
     ]
   },
   {
-    preceedingFieldId: 'birth.father.father-view-group.educationalAttainment',
+    precedingFieldId: 'birth.father.father-view-group.educationalAttainment',
     configurations: [
       {
         config: AddressSubsections.PRIMARY_ADDRESS_SUBSECTION,
@@ -175,7 +175,7 @@ export const defaultAddressConfiguration: IAddressConfiguration[] = [
     ]
   },
   {
-    preceedingFieldId: 'death.deceased.deceased-view-group.maritalStatus',
+    precedingFieldId: 'death.deceased.deceased-view-group.maritalStatus',
     configurations: [
       {
         config: AddressSubsections.PRIMARY_ADDRESS_SUBSECTION,
@@ -195,7 +195,7 @@ export const defaultAddressConfiguration: IAddressConfiguration[] = [
     ]
   },
   {
-    preceedingFieldId: 'death.informant.informant-view-group.familyNameEng',
+    precedingFieldId: 'death.informant.informant-view-group.familyNameEng',
     configurations: [
       {
         config: AddressCopyConfigCases.PRIMARY_ADDRESS_SAME_AS_OTHER_PRIMARY,
@@ -472,9 +472,9 @@ export function populateRegisterFormsWithAddresses(
   const newForm = cloneDeep(defaultEventForm)
   defaultAddressConfiguration.forEach(
     (addressConfiguration: IAddressConfiguration) => {
-      if (addressConfiguration.preceedingFieldId.includes(event)) {
+      if (addressConfiguration.precedingFieldId.includes(event)) {
         const preceedingDefaultField: IDefaultField | undefined =
-          getDefaultField(newForm, addressConfiguration.preceedingFieldId)
+          getDefaultField(newForm, addressConfiguration.precedingFieldId)
 
         let addressFields: SerializedFormField[] = []
         let previewGroups: IPreviewGroup[] = []

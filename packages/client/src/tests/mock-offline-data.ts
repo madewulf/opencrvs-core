@@ -95,7 +95,7 @@ export const formConfig: IFormConfig = {
       maxLength: 32,
       fieldName: 'vaccination',
       fieldType: CustomFieldType.Text,
-      preceedingFieldId: 'birth.child.child-view-group.attendantAtBirth',
+      precedingFieldId: 'birth.child.child-view-group.attendantAtBirth',
       required: false,
       enabled: '',
       custom: true

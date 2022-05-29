@@ -60,7 +60,7 @@ type IPreviewGroupPlaceholder = {
 }
 
 export type IDefaultConfigField = IDefaultQuestionConfig & {
-  preceedingFieldId: string
+  precedingFieldId: string
   foregoingFieldId: string
   identifiers: {
     sectionIndex: number
@@ -81,7 +81,7 @@ export type ISectionFieldMap = Record<string, IConfigFieldMap>
 
 function defaultFieldToQuestionConfig(
   fieldId: string,
-  preceedingFieldId: string,
+  precedingFieldId: string,
   sectionIndex: number,
   groupIndex: number,
   fieldIndex: number,
@@ -92,7 +92,7 @@ function defaultFieldToQuestionConfig(
     enabled: field.enabled ?? '',
     custom: false,
     required: field.required,
-    preceedingFieldId,
+    precedingFieldId,
     foregoingFieldId: FieldPosition.BOTTOM,
     identifiers: {
       sectionIndex,
@@ -104,7 +104,7 @@ function defaultFieldToQuestionConfig(
 
 function customFieldToQuestionConfig(
   fieldId: string,
-  preceedingFieldId: string,
+  precedingFieldId: string,
   field: IFormField,
   questionConfig: IQuestionConfig[]
 ): ICustomConfigField {
@@ -118,7 +118,7 @@ function customFieldToQuestionConfig(
     fieldId,
     fieldName: field.name,
     fieldType: originalConfig.fieldType,
-    preceedingFieldId,
+    precedingFieldId,
     required: originalConfig.required,
     custom: true,
     foregoingFieldId: FieldPosition.BOTTOM,
@@ -132,7 +132,7 @@ function customFieldToQuestionConfig(
 
 export function fieldToQuestionConfig(
   fieldId: string,
-  preceedingFieldId: string,
+  precedingFieldId: string,
   sectionIndex: number,
   groupIndex: number,
   fieldIndex: number,
@@ -142,7 +142,7 @@ export function fieldToQuestionConfig(
   if (!field.custom) {
     return defaultFieldToQuestionConfig(
       fieldId,
-      preceedingFieldId,
+      precedingFieldId,
       sectionIndex,
       groupIndex,
       fieldIndex,
@@ -151,7 +151,7 @@ export function fieldToQuestionConfig(
   }
   return customFieldToQuestionConfig(
     fieldId,
-    preceedingFieldId,
+    precedingFieldId,
     field,
     questionConfig
   )
@@ -343,7 +343,7 @@ export function hasDefaultFieldChanged(
     defaultFieldIdentifiers,
     defaultForm
   )
-  if (precedingDefaultFieldId !== defaultConfigField.preceedingFieldId) {
+  if (precedingDefaultFieldId !== defaultConfigField.precedingFieldId) {
     return true
   }
   return (
@@ -405,7 +405,7 @@ export function prepareNewCustomFieldConfig(
     fieldId: customFieldIndex,
     fieldName: camelCase(defaultMessage),
     fieldType,
-    preceedingFieldId: lastField ? lastField.fieldId : FieldPosition.TOP,
+    precedingFieldId: lastField ? lastField.fieldId : FieldPosition.TOP,
     foregoingFieldId: FieldPosition.BOTTOM,
     required: false,
     custom: true,

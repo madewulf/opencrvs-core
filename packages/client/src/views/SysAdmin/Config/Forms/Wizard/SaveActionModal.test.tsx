@@ -42,7 +42,7 @@ const graphqlMocks: MockedResponse[] = [
           {
             fieldId: 'birth.child.child-view-group.vaccination',
             fieldName: 'vaccination',
-            preceedingFieldId: 'birth.child.child-view-group.attendantAtBirth',
+            precedingFieldId: 'birth.child.child-view-group.attendantAtBirth',
             required: false,
             enabled: '',
             custom: true,
@@ -93,7 +93,7 @@ const graphqlMocks: MockedResponse[] = [
             fieldId: 'birth.child.child-view-group.birthType',
             enabled: '',
             required: false,
-            preceedingFieldId: 'birth.child.child-view-group.vaccination'
+            precedingFieldId: 'birth.child.child-view-group.vaccination'
           }
         ]
       }

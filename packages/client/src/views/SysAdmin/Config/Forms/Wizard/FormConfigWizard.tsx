@@ -200,7 +200,7 @@ export function FormConfigWizard() {
   let firstFieldIdentifiers
   if (section !== 'settings') {
     const firstField = Object.values(fieldsMap).find(
-      (formField) => formField.preceedingFieldId === FieldPosition.TOP
+      (formField) => formField.precedingFieldId === FieldPosition.TOP
     )
     if (!firstField) {
       throw new Error(`No starting field found in section`)

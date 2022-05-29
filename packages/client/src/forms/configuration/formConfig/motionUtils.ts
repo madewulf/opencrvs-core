@@ -63,19 +63,19 @@ export function shiftCurrentFieldUp(
   previousField: IConfigField | undefined,
   nextField: IConfigField | undefined
 ) {
-  if (currentField.preceedingFieldId === FieldPosition.TOP) return section
+  if (currentField.precedingFieldId === FieldPosition.TOP) return section
 
   const newSection = {
     ...section
   }
   if (previousField) {
     if (
-      previousField.preceedingFieldId &&
-      previousField.preceedingFieldId !== FieldPosition.TOP
+      previousField.precedingFieldId &&
+      previousField.precedingFieldId !== FieldPosition.TOP
     ) {
       /* change the previous of the previousField's next pointer */
-      newSection[previousField.preceedingFieldId] = {
-        ...newSection[previousField.preceedingFieldId],
+      newSection[previousField.precedingFieldId] = {
+        ...newSection[previousField.precedingFieldId],
         foregoingFieldId: currentField.fieldId
       }
     }
@@ -83,14 +83,14 @@ export function shiftCurrentFieldUp(
     /* change currentField's previous and next pointer */
     newSection[currentField.fieldId] = {
       ...newSection[currentField.fieldId],
-      preceedingFieldId: previousField.preceedingFieldId,
+      precedingFieldId: previousField.precedingFieldId,
       foregoingFieldId: previousField.fieldId
     }
 
     /* change previousField's previous and next pointer */
     newSection[previousField.fieldId] = {
       ...newSection[previousField.fieldId],
-      preceedingFieldId: currentField.fieldId,
+      precedingFieldId: currentField.fieldId,
       foregoingFieldId: currentField.foregoingFieldId
     }
   }
@@ -99,7 +99,7 @@ export function shiftCurrentFieldUp(
     /* change nextField's previous pointer */
     newSection[nextField.fieldId] = {
       ...newSection[nextField.fieldId],
-      preceedingFieldId: currentField.preceedingFieldId
+      precedingFieldId: currentField.precedingFieldId
     }
   }
   return newSection
@@ -121,21 +121,21 @@ export function shiftCurrentFieldDown(
       /* change the next of the nextField's previous pointer */
       newSection[nextField.foregoingFieldId] = {
         ...newSection[nextField.foregoingFieldId],
-        preceedingFieldId: currentField.fieldId
+        precedingFieldId: currentField.fieldId
       }
     }
 
     /* change currentField's previous and next pointer */
     newSection[currentField.fieldId] = {
       ...newSection[currentField.fieldId],
-      preceedingFieldId: nextField.fieldId,
+      precedingFieldId: nextField.fieldId,
       foregoingFieldId: nextField.foregoingFieldId
     }
 
     /* change nextField's previous and next pointer */
     newSection[nextField.fieldId] = {
       ...newSection[nextField.fieldId],
-      preceedingFieldId: currentField.preceedingFieldId,
+      precedingFieldId: currentField.precedingFieldId,
       foregoingFieldId: currentField.fieldId
     }
   }

@@ -19,11 +19,11 @@ export interface IMessage {
 
 interface IBaseQuestionConfig {
   fieldId: string
+  precedingFieldId: string
   custom: boolean
 }
 
 export interface IDefaultQuestionConfig extends IBaseQuestionConfig {
-  preceedingFieldId?: string
   required?: boolean
   enabled: string
 }
@@ -38,7 +38,6 @@ export interface ICustomQuestionConfig extends IBaseQuestionConfig {
   maxLength?: number
   fieldName: string
   fieldType: CustomFieldType
-  preceedingFieldId: string
 }
 
 export type IQuestionConfig = IDefaultQuestionConfig | ICustomQuestionConfig
@@ -53,7 +52,7 @@ export interface IQuestionPayload {
   maxLength?: number
   fieldName?: string
   fieldType?: CustomFieldType
-  preceedingFieldId?: string
+  precedingFieldId: string
   required?: boolean
   enabled?: string
   custom?: boolean
@@ -80,7 +79,7 @@ export function questionsTransformer(
       maxLength,
       fieldName,
       fieldType,
-      preceedingFieldId,
+      precedingFieldId,
       required,
       enabled,
       custom
@@ -96,7 +95,7 @@ export function questionsTransformer(
           maxLength,
           fieldName,
           fieldType,
-          preceedingFieldId,
+          precedingFieldId,
           required: required ?? false,
           custom
         } as ICustomQuestionConfig
@@ -105,7 +104,7 @@ export function questionsTransformer(
         fieldId,
         enabled: enabled ?? '',
         required,
-        preceedingFieldId,
+        precedingFieldId,
         custom: false
       }
     }

@@ -90,7 +90,7 @@ function generateConfigFields(
   formSection: IFormSection
 ) {
   const firstField = Object.values(formFieldMap).find(
-    (formField) => formField.preceedingFieldId === FieldPosition.TOP
+    (formField) => formField.precedingFieldId === FieldPosition.TOP
   )
 
   if (!firstField) {
@@ -168,7 +168,7 @@ export function Canvas({
               : true
           )
       ).map((configField) => {
-        const { fieldId, preceedingFieldId, foregoingFieldId, custom } =
+        const { fieldId, precedingFieldId, foregoingFieldId, custom } =
           configField
         const isSelected = selectedField?.fieldId === fieldId
         const isHidden =
@@ -184,7 +184,7 @@ export function Canvas({
             movable={custom && isSelected}
             status={isHidden ? intl.formatMessage(messages.hidden) : undefined}
             removable={custom}
-            isUpDisabled={preceedingFieldId === FieldPosition.TOP}
+            isUpDisabled={precedingFieldId === FieldPosition.TOP}
             isDownDisabled={foregoingFieldId === FieldPosition.BOTTOM}
             onMoveUp={() => dispatch(shiftConfigFieldUp(fieldId))}
             onMoveDown={() => dispatch(shiftConfigFieldDown(fieldId))}

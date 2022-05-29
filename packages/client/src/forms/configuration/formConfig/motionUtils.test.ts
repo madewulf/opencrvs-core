@@ -18,7 +18,7 @@ const mockConfigFieldOne: IConfigField = {
   fieldId: 'one',
   enabled: '',
   custom: false,
-  preceedingFieldId: FieldPosition.TOP,
+  precedingFieldId: FieldPosition.TOP,
   foregoingFieldId: 'two',
   identifiers: { sectionIndex: 0, groupIndex: 0, fieldIndex: 0 }
 }
@@ -27,7 +27,7 @@ const mockConfigFieldTwo: IConfigField = {
   fieldId: 'two',
   enabled: '',
   custom: false,
-  preceedingFieldId: 'one',
+  precedingFieldId: 'one',
   foregoingFieldId: 'three',
   identifiers: { sectionIndex: 0, groupIndex: 0, fieldIndex: 0 }
 }
@@ -36,7 +36,7 @@ const mockConfigFieldThree: IConfigField = {
   fieldId: 'three',
   enabled: '',
   custom: false,
-  preceedingFieldId: 'two',
+  precedingFieldId: 'two',
   foregoingFieldId: FieldPosition.BOTTOM,
   identifiers: { sectionIndex: 0, groupIndex: 0, fieldIndex: 0 }
 }
@@ -65,9 +65,9 @@ describe('moveConfigFieldUp', () => {
       mockConfigFieldOne,
       mockConfigFieldThree
     )
-    expect(newSection.one.preceedingFieldId).toBe('two')
-    expect(newSection.two.preceedingFieldId).toBe(FieldPosition.TOP)
-    expect(newSection.three.preceedingFieldId).toBe('one')
+    expect(newSection.one.precedingFieldId).toBe('two')
+    expect(newSection.two.precedingFieldId).toBe(FieldPosition.TOP)
+    expect(newSection.three.precedingFieldId).toBe('one')
 
     expect(newSection.one.foregoingFieldId).toBe('three')
     expect(newSection.two.foregoingFieldId).toBe('one')
@@ -81,9 +81,9 @@ describe('moveConfigFieldUp', () => {
       mockConfigFieldTwo,
       undefined
     )
-    expect(newSection.one.preceedingFieldId).toBe(FieldPosition.TOP)
-    expect(newSection.two.preceedingFieldId).toBe('three')
-    expect(newSection.three.preceedingFieldId).toBe('one')
+    expect(newSection.one.precedingFieldId).toBe(FieldPosition.TOP)
+    expect(newSection.two.precedingFieldId).toBe('three')
+    expect(newSection.three.precedingFieldId).toBe('one')
 
     expect(newSection.one.foregoingFieldId).toBe('three')
     expect(newSection.two.foregoingFieldId).toBe(FieldPosition.BOTTOM)
@@ -109,9 +109,9 @@ describe('moveConfigFieldDown', () => {
       mockConfigFieldOne,
       mockConfigFieldThree
     )
-    expect(newSection.one.preceedingFieldId).toBe(FieldPosition.TOP)
-    expect(newSection.two.preceedingFieldId).toBe('three')
-    expect(newSection.three.preceedingFieldId).toBe('one')
+    expect(newSection.one.precedingFieldId).toBe(FieldPosition.TOP)
+    expect(newSection.two.precedingFieldId).toBe('three')
+    expect(newSection.three.precedingFieldId).toBe('one')
 
     expect(newSection.one.foregoingFieldId).toBe('three')
     expect(newSection.two.foregoingFieldId).toBe(FieldPosition.BOTTOM)
@@ -125,9 +125,9 @@ describe('moveConfigFieldDown', () => {
       undefined,
       mockConfigFieldTwo
     )
-    expect(newSection.one.preceedingFieldId).toBe('two')
-    expect(newSection.two.preceedingFieldId).toBe(FieldPosition.TOP)
-    expect(newSection.three.preceedingFieldId).toBe('one')
+    expect(newSection.one.precedingFieldId).toBe('two')
+    expect(newSection.two.precedingFieldId).toBe(FieldPosition.TOP)
+    expect(newSection.three.precedingFieldId).toBe('one')
 
     expect(newSection.one.foregoingFieldId).toBe('three')
     expect(newSection.two.foregoingFieldId).toBe('one')

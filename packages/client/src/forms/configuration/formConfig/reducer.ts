@@ -62,10 +62,10 @@ type Actions = actions.ConfigFieldsActions | offlineActions.Action
 function getPreviousField(fieldMap: IConfigFieldMap, fieldId: string) {
   const currentField = fieldMap[fieldId]
 
-  const { preceedingFieldId } = currentField
+  const { precedingFieldId } = currentField
 
-  return preceedingFieldId && preceedingFieldId !== FieldPosition.TOP
-    ? fieldMap[preceedingFieldId]
+  return precedingFieldId && precedingFieldId !== FieldPosition.TOP
+    ? fieldMap[precedingFieldId]
     : undefined
 }
 
@@ -197,11 +197,11 @@ export const formConfigReducer: LoopReducer<IFormConfigState, Actions> = (
       }
 
       if (
-        customField.preceedingFieldId &&
-        customField.preceedingFieldId !== FieldPosition.TOP
+        customField.precedingFieldId &&
+        customField.precedingFieldId !== FieldPosition.TOP
       ) {
-        fields[customField.preceedingFieldId] = {
-          ...fields[customField.preceedingFieldId],
+        fields[customField.precedingFieldId] = {
+          ...fields[customField.precedingFieldId],
           foregoingFieldId: customField.fieldId
         }
       }
@@ -224,14 +224,14 @@ export const formConfigReducer: LoopReducer<IFormConfigState, Actions> = (
       const { [fieldId]: originalField, ...fields } =
         state[event].configFields[sectionId]
 
-      /* Adjusting preceedingFieldId & foregoingFieldId */
+      /* Adjusting precedingFieldId & foregoingFieldId */
       if (modifiedProps.fieldId && fieldId !== modifiedProps.fieldId) {
         if (
-          originalField.preceedingFieldId &&
-          originalField.preceedingFieldId !== FieldPosition.TOP
+          originalField.precedingFieldId &&
+          originalField.precedingFieldId !== FieldPosition.TOP
         ) {
-          fields[originalField.preceedingFieldId] = {
-            ...fields[originalField.preceedingFieldId],
+          fields[originalField.precedingFieldId] = {
+            ...fields[originalField.precedingFieldId],
             foregoingFieldId: modifiedProps.fieldId
           }
         }
@@ -239,7 +239,7 @@ export const formConfigReducer: LoopReducer<IFormConfigState, Actions> = (
         if (originalField.foregoingFieldId !== FieldPosition.BOTTOM)
           fields[originalField.foregoingFieldId] = {
             ...fields[originalField.foregoingFieldId],
-            preceedingFieldId: modifiedProps.fieldId
+            precedingFieldId: modifiedProps.fieldId
           }
 
         fields[modifiedProps.fieldId] = {
@@ -284,18 +284,18 @@ export const formConfigReducer: LoopReducer<IFormConfigState, Actions> = (
         state[event].configFields[sectionId]
 
       if (
-        fieldToRemove.preceedingFieldId &&
-        fieldToRemove.preceedingFieldId !== FieldPosition.TOP
+        fieldToRemove.precedingFieldId &&
+        fieldToRemove.precedingFieldId !== FieldPosition.TOP
       ) {
-        fields[fieldToRemove.preceedingFieldId] = {
-          ...fields[fieldToRemove.preceedingFieldId],
+        fields[fieldToRemove.precedingFieldId] = {
+          ...fields[fieldToRemove.precedingFieldId],
           foregoingFieldId: fieldToRemove.foregoingFieldId
         }
       }
       if (fieldToRemove.foregoingFieldId !== FieldPosition.BOTTOM) {
         fields[fieldToRemove.foregoingFieldId] = {
           ...fields[fieldToRemove.foregoingFieldId],
-          preceedingFieldId: fieldToRemove.preceedingFieldId
+          precedingFieldId: fieldToRemove.precedingFieldId
         }
       }
 

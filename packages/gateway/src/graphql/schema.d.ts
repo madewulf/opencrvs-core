@@ -992,7 +992,7 @@ export interface GQLQuestionInput {
   maxLength?: number
   fieldName?: string
   fieldType?: GQLCustomFieldType
-  preceedingFieldId?: string
+  precedingFieldId: string
   required?: boolean
   enabled?: string
   custom?: boolean

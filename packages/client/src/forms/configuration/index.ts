@@ -45,7 +45,7 @@ import { cloneDeep, concat } from 'lodash'
 // THIS FILE SORTS & COMBINES CONFIGURATIONS WITH THE DEFAULT CONFIGURATION FOR RENDERING IN THE APPLICATION
 
 /*
- * For preceedingFieldId & foregoingFieldId to
+ * For precedingFieldId & foregoingFieldId to
  * denote front most and bottom most position
  */
 export enum FieldPosition {
@@ -121,7 +121,7 @@ function sortCustomQuestionPosition(
       customGroup.questions.forEach((customQuestion, customQuestionIndex) => {
         if (
           customQuestion.question.fieldId ===
-          nextCustomQuestion.preceedingFieldId
+          nextCustomQuestion.precedingFieldId
         ) {
           result.parsed = true
           result.sortedCustomGroupIndex = sortedCustomGroupIndex
@@ -155,23 +155,23 @@ export function sortFormCustomisations(
       const defaultFieldCustomisation: IDefaultFieldCustomisation = {
         question,
         defaultField,
-        positionTop: question.preceedingFieldId === FieldPosition.TOP
+        positionTop: question.precedingFieldId === FieldPosition.TOP
       }
-      if (question.preceedingFieldId !== FieldPosition.TOP) {
+      if (question.precedingFieldId !== FieldPosition.TOP) {
         // check if the preceeding field is a custom field as those should be repositioned last
         let preceedingFieldIsACustomField = false
         questionConfig.forEach((obj) => {
           if (
-            question.preceedingFieldId === obj.fieldId &&
+            question.precedingFieldId === obj.fieldId &&
             obj.custom === true
           ) {
             preceedingFieldIsACustomField = true
           }
         })
-        if (!preceedingFieldIsACustomField && question.preceedingFieldId) {
+        if (!preceedingFieldIsACustomField && question.precedingFieldId) {
           defaultFieldCustomisation.preceedingDefaultField = getDefaultField(
             defaultEventForm,
-            question.preceedingFieldId
+            question.precedingFieldId
           )
         }
       }
@@ -181,7 +181,7 @@ export function sortFormCustomisations(
     } else if (!isDefaultQuestionConfig(question)) {
       // this is a configuration for a new custom field
 
-      if (question.preceedingFieldId === FieldPosition.TOP) {
+      if (question.precedingFieldId === FieldPosition.TOP) {
         createCustomGroup(
           defaultEventForm,
           formCustomisations.customQuestionConfigurations,
@@ -195,7 +195,7 @@ export function sortFormCustomisations(
       // custom questions may be stacked below each other in blocks, so we need to group those fields so that the whole block can be repositioned
       const preceedingDefaultField: IDefaultField | undefined = getDefaultField(
         defaultEventForm,
-        question.preceedingFieldId
+        question.precedingFieldId
       )
 
       // initialise blocks that either appear after a default field or at the top of the form
@@ -342,7 +342,7 @@ export function configureRegistrationForm(
       let spliceIndex = 0
       const customFieldIdentifiers = getIdentifiersFromFieldId(
         defaultFieldsToBeRepositionedAfterCustomField.question
-          .preceedingFieldId as string
+          .precedingFieldId as string
       )
       newForm.sections[
         defaultFieldsToBeRepositionedAfterCustomField.defaultField
