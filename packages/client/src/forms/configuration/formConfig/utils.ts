@@ -12,7 +12,6 @@
 import {
   IFormField,
   IForm,
-  IQuestionConfig,
   IFormSection,
   ISerializedFormSection,
   ISerializedFormSectionGroup,
@@ -24,14 +23,18 @@ import {
   RADIO_GROUP,
   SELECT_WITH_OPTIONS,
   DOCUMENT_UPLOADER_WITH_OPTION,
-  QuestionConfigFieldType,
   ISerializedForm,
   IRadioGroupFormField,
   IRadioGroupWithNestedFieldsFormField,
   ISelectFormFieldWithOptions,
   IDocumentUploaderWithOptionsFormField
 } from '@client/forms'
-import { Event } from '@client/utils/gateway'
+import {
+  IQuestionConfig,
+  IDefaultQuestionConfig,
+  ICustomQuestionConfig
+} from '@client/forms/questionConfig'
+import { Event, CustomFieldType } from '@client/utils/gateway'
 import { camelCase, keys } from 'lodash'
 import {
   FieldPosition,
@@ -56,10 +59,8 @@ type IPreviewGroupPlaceholder = {
   previewGroupLabel?: MessageDescriptor
 }
 
-export type IDefaultConfigField = Pick<
-  IQuestionConfig,
-  'fieldId' | 'enabled' | 'required' | 'preceedingFieldId' | 'custom'
-> & {
+export type IDefaultConfigField = IDefaultQuestionConfig & {
+  preceedingFieldId: string
   foregoingFieldId: string
   identifiers: {
     sectionIndex: number
@@ -68,7 +69,7 @@ export type IDefaultConfigField = Pick<
   }
 } & IPreviewGroupPlaceholder
 
-export type ICustomConfigField = IQuestionConfig & {
+export type ICustomConfigField = ICustomQuestionConfig & {
   foregoingFieldId: string
 } & IPreviewGroupPlaceholder
 
@@ -89,6 +90,7 @@ function defaultFieldToQuestionConfig(
   return {
     fieldId,
     enabled: field.enabled ?? '',
+    custom: false,
     required: field.required,
     preceedingFieldId,
     foregoingFieldId: FieldPosition.BOTTOM,
@@ -108,36 +110,22 @@ function customFieldToQuestionConfig(
 ): ICustomConfigField {
   /* TODO: add errorMessage when implemented for FormFields */
 
-  const originalConfig = questionConfig.filter(
+  const originalConfig: ICustomQuestionConfig = questionConfig.filter(
     (question) => question.fieldId === fieldId
-  )[0]
-  let fieldType
-
-  for (const k in QuestionConfigFieldType) {
-    if (
-      QuestionConfigFieldType[k as keyof typeof QuestionConfigFieldType] ===
-      field.type
-    ) {
-      fieldType =
-        QuestionConfigFieldType[k as keyof typeof QuestionConfigFieldType]
-    }
-  }
+  )[0] as ICustomQuestionConfig
 
   const customQuestionConfig: ICustomConfigField = {
     fieldId,
     fieldName: field.name,
+    fieldType: originalConfig.fieldType,
     preceedingFieldId,
     required: originalConfig.required,
-    enabled: field.enabled ?? '',
     custom: true,
     foregoingFieldId: FieldPosition.BOTTOM,
     label: originalConfig.label,
     placeholder: originalConfig.placeholder,
     tooltip: originalConfig.tooltip,
     description: originalConfig.description
-  }
-  if (fieldType) {
-    customQuestionConfig.fieldType = fieldType
   }
   return customQuestionConfig
 }
@@ -399,7 +387,7 @@ export function prepareNewCustomFieldConfig(
   event: Event,
   section: string,
   groupId: string,
-  fieldType: QuestionConfigFieldType
+  fieldType: CustomFieldType
 ): ICustomConfigField {
   const customFieldNumber = determineNextFieldIdNumber(
     fieldsMap,
@@ -420,7 +408,6 @@ export function prepareNewCustomFieldConfig(
     preceedingFieldId: lastField ? lastField.fieldId : FieldPosition.TOP,
     foregoingFieldId: FieldPosition.BOTTOM,
     required: false,
-    enabled: '',
     custom: true,
     label: [
       {

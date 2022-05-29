@@ -17,22 +17,28 @@ import { FieldPosition } from '@client/forms/configuration'
 const mockConfigFieldOne: IConfigField = {
   fieldId: 'one',
   enabled: '',
+  custom: false,
   preceedingFieldId: FieldPosition.TOP,
-  foregoingFieldId: 'two'
+  foregoingFieldId: 'two',
+  identifiers: { sectionIndex: 0, groupIndex: 0, fieldIndex: 0 }
 }
 
 const mockConfigFieldTwo: IConfigField = {
   fieldId: 'two',
   enabled: '',
+  custom: false,
   preceedingFieldId: 'one',
-  foregoingFieldId: 'three'
+  foregoingFieldId: 'three',
+  identifiers: { sectionIndex: 0, groupIndex: 0, fieldIndex: 0 }
 }
 
 const mockConfigFieldThree: IConfigField = {
   fieldId: 'three',
   enabled: '',
+  custom: false,
   preceedingFieldId: 'two',
-  foregoingFieldId: FieldPosition.BOTTOM
+  foregoingFieldId: FieldPosition.BOTTOM,
+  identifiers: { sectionIndex: 0, groupIndex: 0, fieldIndex: 0 }
 }
 
 const fieldMap: IConfigFieldMap = {

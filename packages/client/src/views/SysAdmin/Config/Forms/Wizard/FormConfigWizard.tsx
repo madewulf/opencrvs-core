@@ -50,6 +50,7 @@ import {
   FieldPosition,
   getIdentifiersFromFieldId
 } from '@client/forms/configuration'
+import { isDefaultQuestionConfig } from '@client/forms/questionConfig'
 
 const Container = styled.div`
   display: flex;
@@ -164,10 +165,15 @@ function useHiddenFields({
    * hidden and we have the showHiddenFields set to false
    */
   React.useEffect(() => {
-    if (!showHiddenFields && selectedField?.enabled === FieldEnabled.DISABLED) {
+    if (
+      !showHiddenFields &&
+      selectedField &&
+      isDefaultQuestionConfig(selectedField) &&
+      selectedField.enabled === FieldEnabled.DISABLED
+    ) {
       setSelectedField(null)
     }
-  }, [showHiddenFields, selectedField?.enabled, setSelectedField])
+  }, [showHiddenFields, selectedField, setSelectedField])
 
   return { showHiddenFields, setShowHiddenFields }
 }

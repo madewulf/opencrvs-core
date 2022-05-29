@@ -10,7 +10,6 @@
  * graphic logo are (registered/a) trademark(s) of Plan International.
  */
 import {
-  IMessage,
   NUMBER,
   TEL,
   TEXT,
@@ -19,6 +18,7 @@ import {
   DeathSection,
   IFormField
 } from '@client/forms'
+import { IMessage } from '@client/forms/questionConfig'
 import { Event } from '@client/utils/gateway'
 import { modifyConfigField } from '@client/forms/configuration/formConfig/actions'
 import {
@@ -185,7 +185,6 @@ interface ICustomFieldState {
   isFieldDuplicate: boolean
   selectedLanguage: string
   handleBars: string
-  hideField: string
   requiredField: boolean
   maxLength: number | undefined
   fieldForms: IFieldForms
@@ -227,7 +226,6 @@ class CustomFieldFormsComp extends React.Component<
         getCertificateHandlebar(formField) ||
         camelCase(fieldForms[defaultLanguage].label),
       selectedLanguage: defaultLanguage,
-      hideField: selectedField.enabled,
       requiredField: selectedField.required || false,
       maxLength: selectedField.maxLength,
       fieldForms
@@ -366,7 +364,6 @@ class CustomFieldFormsComp extends React.Component<
       errorMessage: optionalContent.errorMessage,
       fieldName: handleBars,
       required: this.state.requiredField,
-      enabled: this.state.hideField,
       fieldId: newFieldID,
       label
     }

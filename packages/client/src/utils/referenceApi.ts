@@ -13,6 +13,7 @@ import { IFormConfig } from '@client/forms'
 import { ILanguage } from '@client/i18n/reducer'
 import { ILocation } from '@client/offline/reducer'
 import { getToken } from '@client/utils/authUtils'
+import { questionsTransformer } from '@client/forms/questionConfig'
 
 export interface ILocationDataResponse {
   [locationId: string]: ILocation
@@ -108,6 +109,10 @@ async function loadConfig(): Promise<IApplicationConfigResponse> {
   }
 
   const response = await res.json()
+
+  response.formConfig.questionConfig = questionsTransformer(
+    response.formConfig.questionConfig
+  )
 
   return response
 }

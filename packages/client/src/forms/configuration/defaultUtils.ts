@@ -10,11 +10,8 @@
  * graphic logo are (registered/a) trademark(s) of Plan International.
  */
 
-import {
-  ISerializedForm,
-  IQuestionConfig,
-  SerializedFormField
-} from '@client/forms/index'
+import { ISerializedForm, SerializedFormField } from '@client/forms/index'
+import { IDefaultQuestionConfig } from '@client/forms/questionConfig'
 import { getGroup, getIdentifiersFromFieldId, getSection } from '.'
 
 // THIS FILE CONTAINS FUNCTIONS TO CONFIGURE THE DEFAULT CONFIGURATION
@@ -32,7 +29,7 @@ export interface IDefaultField {
 }
 
 export interface IDefaultFieldCustomisation {
-  question: IQuestionConfig
+  question: IDefaultQuestionConfig
   defaultField: IDefaultField
   positionTop: boolean
   preceedingDefaultField?: IDefaultField

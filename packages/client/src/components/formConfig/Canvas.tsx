@@ -41,6 +41,7 @@ import { useIntl } from 'react-intl'
 import { useDispatch, useSelector } from 'react-redux'
 import { useParams } from 'react-router'
 import ConfigPlaceholder from './ConfigPlaceholder'
+import { isDefaultQuestionConfig } from '@client/forms/questionConfig'
 
 const CanvasBox = styled(Box)`
   display: flex;
@@ -161,19 +162,18 @@ export function Canvas({
     <CanvasBox>
       {(showHiddenFields
         ? configFields
-        : configFields.filter(
-            ({ enabled }) => enabled !== FieldEnabled.DISABLED
+        : configFields.filter((configField) =>
+            isDefaultQuestionConfig(configField)
+              ? configField.enabled !== FieldEnabled.DISABLED
+              : true
           )
       ).map((configField) => {
-        const {
-          fieldId,
-          preceedingFieldId,
-          foregoingFieldId,
-          enabled,
-          custom
-        } = configField
+        const { fieldId, preceedingFieldId, foregoingFieldId, custom } =
+          configField
         const isSelected = selectedField?.fieldId === fieldId
-        const isHidden = !custom && enabled === FieldEnabled.DISABLED
+        const isHidden =
+          isDefaultQuestionConfig(configField) &&
+          configField.enabled === FieldEnabled.DISABLED
 
         return (
           <FormConfigElementCard

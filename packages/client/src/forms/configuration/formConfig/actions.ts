@@ -10,7 +10,7 @@
  * graphic logo are (registered/a) trademark(s) of Plan International.
  */
 import { ICustomConfigField, IConfigField } from './utils'
-import { IQuestionConfig } from '@client/forms'
+import { IQuestionConfig } from '@client/forms/questionConfig'
 import { Event } from '@client/utils/gateway'
 import { IFormDraft } from '@client/forms/configuration/formDrafts/utils'
 

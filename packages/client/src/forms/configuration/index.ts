@@ -14,11 +14,15 @@ import {
   IFormConfig,
   ISerializedForm,
   IIdentifiers,
-  IQuestionConfig,
   SerializedFormField,
   ISerializedFormSection,
   IFormSectionGroup
 } from '@client/forms/index'
+import {
+  IQuestionConfig,
+  isDefaultQuestionConfig,
+  ICustomQuestionConfig
+} from '@client/forms/questionConfig'
 import {
   createCustomField,
   createCustomGroup,
@@ -140,13 +144,13 @@ export function sortFormCustomisations(
     defaultFieldCustomisations: [],
     customQuestionConfigurations: []
   }
-  const customQsToBeSorted: IQuestionConfig[] = []
+  const customQsToBeSorted: ICustomQuestionConfig[] = []
   questionConfig.forEach((question) => {
     const defaultField: IDefaultField | undefined = getDefaultField(
       defaultEventForm,
       question.fieldId
     )
-    if (defaultField && !question.custom) {
+    if (defaultField && isDefaultQuestionConfig(question)) {
       // this is a customisation to a default field
       const defaultFieldCustomisation: IDefaultFieldCustomisation = {
         question,
@@ -174,7 +178,7 @@ export function sortFormCustomisations(
       formCustomisations.defaultFieldCustomisations?.push(
         defaultFieldCustomisation
       )
-    } else if (question.custom && question.preceedingFieldId) {
+    } else if (!isDefaultQuestionConfig(question)) {
       // this is a configuration for a new custom field
 
       if (question.preceedingFieldId === FieldPosition.TOP) {

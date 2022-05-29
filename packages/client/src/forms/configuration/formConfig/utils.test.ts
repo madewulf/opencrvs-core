@@ -18,6 +18,7 @@ import {
   ICustomConfigField
 } from './utils'
 import { IFormField } from '@client/forms'
+import { CustomFieldType } from '@client/utils/gateway'
 
 const mockFormField: IFormField = {
   name: 'dummyField',
@@ -47,18 +48,29 @@ describe('isDefaultField', () => {
   const defaultConfigField: IDefaultConfigField = {
     fieldId: 'dummy.defaultFieldId',
     enabled: '',
+    custom: false,
     identifiers: {
       fieldIndex: 0,
       groupIndex: 0,
       sectionIndex: 0
     },
+    preceedingFieldId: 'dummy.precedingFieldId',
     foregoingFieldId: 'dummy.foregoingFieldId'
   }
 
   const customConfigField: ICustomConfigField = {
-    fieldId: 'dummy.customFieldId',
-    enabled: '',
+    fieldId: 'dummy.customField',
+    fieldType: CustomFieldType.Tel,
+    required: false,
+    fieldName: 'customField',
+    label: [
+      {
+        lang: 'en',
+        descriptor: { id: 'dummy.customField', defaultMessage: 'Custom Field' }
+      }
+    ],
     custom: true,
+    preceedingFieldId: 'dummy.precedingFieldId',
     foregoingFieldId: 'dummy.foregoingFieldId'
   }
   it('should return true for defaultConfigField', () => {

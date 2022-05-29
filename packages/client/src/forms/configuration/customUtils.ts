@@ -10,13 +10,12 @@
  * graphic logo are (registered/a) trademark(s) of Plan International.
  */
 
+import { ISerializedForm, SerializedFormField } from '@client/forms/index'
 import {
-  ISerializedForm,
   IQuestionConfig,
-  SerializedFormField,
-  QuestionConfigFieldType,
-  IMessage
-} from '@client/forms/index'
+  IMessage,
+  ICustomQuestionConfig
+} from '@client/forms/questionConfig'
 import { find } from 'lodash'
 import { MessageDescriptor } from 'react-intl'
 import { IDefaultField } from '@client/forms/configuration/defaultUtils'
@@ -46,7 +45,7 @@ export interface ISortedCustomGroup {
 export function createCustomGroup(
   form: ISerializedForm,
   customQuestionConfigurations: ISortedCustomGroup[],
-  question: IQuestionConfig,
+  question: ICustomQuestionConfig,
   preceedingDefaultField: IDefaultField | null,
   positionTop?: boolean
 ) {
@@ -81,21 +80,29 @@ function getDefaultLanguageMessage(messages: IMessage[] | undefined) {
   return defaultMessage?.descriptor
 }
 
-export function createCustomField(
-  question: IQuestionConfig
-): SerializedFormField {
+export function createCustomField({
+  fieldName,
+  fieldId,
+  custom,
+  fieldType,
+  label,
+  description,
+  tooltip,
+  placeholder,
+  required,
+  maxLength
+}: ICustomQuestionConfig): SerializedFormField {
   const baseField: SerializedFormField = {
-    name: question.fieldName as string,
-    customQuesstionMappingId: question.fieldId,
-    custom: true,
-    type: question.fieldType as QuestionConfigFieldType,
-    label: getDefaultLanguageMessage(question.label) as MessageDescriptor,
+    name: fieldName,
+    customQuesstionMappingId: fieldId,
+    custom,
+    required,
+    type: fieldType,
+    label: getDefaultLanguageMessage(label) as MessageDescriptor,
     initialValue: '',
     validate: [],
-    description: getDefaultLanguageMessage(
-      question.description
-    ) as MessageDescriptor,
-    tooltip: getDefaultLanguageMessage(question.tooltip) as MessageDescriptor,
+    description: getDefaultLanguageMessage(description),
+    tooltip: getDefaultLanguageMessage(tooltip),
     mapping: {
       mutation: {
         operation: 'customFieldToQuestionnaireTransformer'
@@ -111,9 +118,8 @@ export function createCustomField(
     baseField.type === 'NUMBER' ||
     baseField.type === 'TEXTAREA'
   ) {
-    baseField.required = question.required
     baseField.placeholder = getDefaultLanguageMessage(
-      question.placeholder
+      placeholder
     ) as MessageDescriptor
   }
   if (baseField.type === 'TEL') {
@@ -124,7 +130,7 @@ export function createCustomField(
     ]
   }
   if (baseField.type === 'TEXT' || baseField.type === 'TEXTAREA') {
-    baseField.maxLength = question.maxLength as number
+    baseField.maxLength = maxLength
   }
   return baseField
 }
