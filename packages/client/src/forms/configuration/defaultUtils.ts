@@ -11,8 +11,8 @@
  */
 
 import { ISerializedForm, SerializedFormField } from '@client/forms/index'
-import { IDefaultQuestionConfig } from '@client/forms/questionConfig'
-import { getGroup, getIdentifiersFromFieldId, getSection } from '.'
+import { getIdentifiersFromFieldId } from '@client/forms/questionConfig'
+import { getGroup, getSection } from '.'
 
 // THIS FILE CONTAINS FUNCTIONS TO CONFIGURE THE DEFAULT CONFIGURATION
 
@@ -26,13 +26,6 @@ export interface IDefaultField {
   selectedSectionIndex: number
   selectedGroupIndex: number
   field: SerializedFormField
-}
-
-export interface IDefaultFieldCustomisation {
-  question: IDefaultQuestionConfig
-  defaultField: IDefaultField
-  positionTop: boolean
-  preceedingDefaultField?: IDefaultField
 }
 
 export function getDefaultField(

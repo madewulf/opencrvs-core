@@ -30,6 +30,8 @@ import {
   shiftCurrentFieldUp
 } from './motionUtils'
 import { getSectionFieldsMap, IConfigFieldMap, ISectionFieldMap } from './utils'
+import { populateRegisterFormsWithAddresses } from '@client/forms/configuration/administrative/addresses'
+import { registerForms } from '@client/forms/configuration/default'
 
 export type IFormConfigState =
   | {
@@ -79,9 +81,18 @@ function getNextField(fieldMap: IConfigFieldMap, fieldId: string) {
     : undefined
 }
 
-function getReadyState({ formDrafts, questionConfig }: IFormConfig) {
-  const birthForm = getConfiguredForm(questionConfig, Event.Birth, true)
-  const deathForm = getConfiguredForm(questionConfig, Event.Death, true)
+function getReadyState(formConfig: IFormConfig) {
+  const { formDrafts, questionConfig } = formConfig
+
+  const birthForm = getConfiguredForm(
+    populateRegisterFormsWithAddresses(registerForms[Event.Birth], Event.Birth),
+    formConfig
+  )
+  const deathForm = getConfiguredForm(
+    populateRegisterFormsWithAddresses(registerForms[Event.Death], Event.Death),
+    formConfig
+  )
+
   return {
     state: 'READY' as const,
     birth: {

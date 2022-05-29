@@ -9,8 +9,9 @@
  * Copyright (C) The OpenCRVS Authors. OpenCRVS and the OpenCRVS
  * graphic logo are (registered/a) trademark(s) of Plan International.
  */
-import { CustomFieldType } from '@client/utils/gateway'
+import { CustomFieldType, Event } from '@client/utils/gateway'
 import { Message } from 'typescript-react-intl'
+import { registerForms } from '@client/forms/configuration/default'
 
 export interface IMessage {
   lang: string
@@ -20,15 +21,20 @@ export interface IMessage {
 interface IBaseQuestionConfig {
   fieldId: string
   precedingFieldId: string
-  custom: boolean
 }
 
 export interface IDefaultQuestionConfig extends IBaseQuestionConfig {
   required?: boolean
   enabled: string
+  identifiers: {
+    sectionIndex: number
+    groupIndex: number
+    fieldIndex: number
+  }
 }
 
 export interface ICustomQuestionConfig extends IBaseQuestionConfig {
+  custom: boolean
   label: IMessage[]
   required: boolean
   placeholder?: IMessage[]
@@ -61,7 +67,62 @@ export interface IQuestionPayload {
 export function isDefaultQuestionConfig(
   questionConfig: IQuestionConfig
 ): questionConfig is IDefaultQuestionConfig {
-  return !questionConfig.custom
+  return !('custom' in questionConfig)
+}
+
+export function getIdentifiersFromFieldId(fieldId: string) {
+  const splitIds = fieldId.split('.')
+  return {
+    event: splitIds[0] as Event,
+    sectionId: splitIds[1],
+    groupId: splitIds[2],
+    fieldName: splitIds[3]
+  }
+}
+
+export function getCustomizedDefaultField(question: IDefaultQuestionConfig) {
+  const { event } = getIdentifiersFromFieldId(question.fieldId)
+
+  const {
+    identifiers: { sectionIndex, groupIndex, fieldIndex },
+    ...rest
+  } = question
+
+  const defaultForm = registerForms[event]
+
+  const serializedField =
+    defaultForm.sections[sectionIndex].groups[groupIndex].fields[fieldIndex]
+
+  return {
+    ...serializedField,
+    ...rest
+  }
+}
+
+export function getIdentifiersInDefaultForm(fieldId: string) {
+  const { event, sectionId, groupId, fieldName } =
+    getIdentifiersFromFieldId(fieldId)
+
+  const defaultForm = registerForms[event]
+
+  const sectionIndex = defaultForm.sections.findIndex(
+    ({ id }) => id === sectionId
+  )
+
+  const groups = defaultForm.sections[sectionIndex].groups
+
+  const groupIndex = groups.findIndex(({ id }) => id === groupId)
+
+  const fields = groups[groupIndex].fields
+
+  const fieldIndex = fields.findIndex(({ name }) => name === fieldName)
+
+  return {
+    event,
+    sectionIndex,
+    groupIndex,
+    fieldIndex
+  }
 }
 
 /* TODO: The paylaod needs to be validated */
@@ -100,13 +161,17 @@ export function questionsTransformer(
           custom
         } as ICustomQuestionConfig
       }
-      return {
+
+      const defaultQuestionConfig: IDefaultQuestionConfig = {
         fieldId,
         enabled: enabled ?? '',
-        required,
         precedingFieldId,
-        custom: false
+        identifiers: getIdentifiersInDefaultForm(fieldId)
       }
+      if (required !== undefined) {
+        defaultQuestionConfig.required = required
+      }
+      return defaultQuestionConfig
     }
   )
 }

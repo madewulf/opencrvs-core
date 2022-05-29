@@ -9,68 +9,13 @@
  * Copyright (C) The OpenCRVS Authors. OpenCRVS and the OpenCRVS
  * graphic logo are (registered/a) trademark(s) of Plan International.
  */
-
-import { ISerializedForm, SerializedFormField } from '@client/forms/index'
-import {
-  IQuestionConfig,
-  IMessage,
-  ICustomQuestionConfig
-} from '@client/forms/questionConfig'
+import { SerializedFormField } from '@client/forms/index'
+import { IMessage, ICustomQuestionConfig } from '@client/forms/questionConfig'
 import { find } from 'lodash'
 import { MessageDescriptor } from 'react-intl'
-import { IDefaultField } from '@client/forms/configuration/defaultUtils'
-import {
-  getGroup,
-  getIdentifiersFromFieldId,
-  getSection,
-  IGroup,
-  ISection
-} from '@client/forms/configuration'
 import { getDefaultLanguage } from '@client/i18n/utils'
 
 // THIS FILE CONTAINS FUNCTIONS TO CONFIGURE CUSTOM FORM CONFIGURATIONS
-
-interface ICustomQuestionConfiguration {
-  question: IQuestionConfig
-  field: SerializedFormField
-}
-export interface ISortedCustomGroup {
-  preceedingDefaultField?: IDefaultField
-  positionTop?: boolean
-  questions: ICustomQuestionConfiguration[]
-  sectionIndex: number
-  groupIndex: number
-}
-
-export function createCustomGroup(
-  form: ISerializedForm,
-  customQuestionConfigurations: ISortedCustomGroup[],
-  question: ICustomQuestionConfig,
-  preceedingDefaultField: IDefaultField | null,
-  positionTop?: boolean
-) {
-  const customQuestionIdentifiers = getIdentifiersFromFieldId(question.fieldId)
-  const section: ISection = getSection(
-    form.sections,
-    customQuestionIdentifiers.sectionId
-  )
-  const group: IGroup = getGroup(
-    section.section.groups,
-    customQuestionIdentifiers.groupId
-  )
-  const newCustomGroup: ISortedCustomGroup = {
-    sectionIndex: section.index,
-    groupIndex: group.index,
-    questions: [{ question, field: createCustomField(question) }]
-  }
-  if (preceedingDefaultField) {
-    newCustomGroup.preceedingDefaultField = preceedingDefaultField
-  }
-  if (positionTop) {
-    newCustomGroup.positionTop = positionTop
-  }
-  customQuestionConfigurations.push(newCustomGroup)
-}
 
 function getDefaultLanguageMessage(messages: IMessage[] | undefined) {
   const language = getDefaultLanguage()
@@ -133,14 +78,4 @@ export function createCustomField({
     baseField.maxLength = maxLength
   }
   return baseField
-}
-
-export function getCustomFields(
-  customQuestionConfig: ICustomQuestionConfiguration[]
-) {
-  const fields: SerializedFormField[] = []
-  customQuestionConfig.forEach((config) => {
-    fields.push(config.field)
-  })
-  return fields
 }
