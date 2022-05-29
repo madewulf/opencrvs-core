@@ -45,12 +45,11 @@ import {
   selectFormDraft,
   selectConfigFields
 } from '@client/forms/configuration/formConfig/selectors'
-import { FieldEnabled } from '@client/forms/configuration/defaultUtils'
+import { FieldPosition, FieldEnabled } from '@client/forms/configuration'
 import {
-  FieldPosition,
-  getIdentifiersFromFieldId
-} from '@client/forms/configuration'
-import { isDefaultQuestionConfig } from '@client/forms/questionConfig'
+  getIdentifiersFromFieldId,
+  isDefaultQuestionConfig
+} from '@client/forms/questionConfig'
 
 const Container = styled.div`
   display: flex;

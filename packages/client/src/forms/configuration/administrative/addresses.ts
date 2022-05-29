@@ -20,11 +20,8 @@ import {
 } from '@client/forms/index'
 import { formMessageDescriptors } from '@client/i18n/messages'
 import { MessageDescriptor } from 'react-intl'
-import {
-  getDefaultField,
-  IDefaultField
-} from '@client/forms/configuration/defaultUtils'
 import { cloneDeep } from 'lodash'
+import { getIdentifiersInDefaultForm } from '@client/forms/questionConfig'
 
 export enum AddressCases {
   // the below are UPPER_CASE because they map to GQLAddress type enums
@@ -470,44 +467,36 @@ export function populateRegisterFormsWithAddresses(
   event: string
 ) {
   const newForm = cloneDeep(defaultEventForm)
+
   defaultAddressConfiguration.forEach(
-    (addressConfiguration: IAddressConfiguration) => {
-      if (addressConfiguration.precedingFieldId.includes(event)) {
-        const preceedingDefaultField: IDefaultField | undefined =
-          getDefaultField(newForm, addressConfiguration.precedingFieldId)
+    ({ precedingFieldId, configurations }: IAddressConfiguration) => {
+      if (precedingFieldId.includes(event)) {
+        const { sectionIndex, groupIndex, fieldIndex } =
+          getIdentifiersInDefaultForm(precedingFieldId, newForm)
 
         let addressFields: SerializedFormField[] = []
         let previewGroups: IPreviewGroup[] = []
-        if (preceedingDefaultField) {
-          addressConfiguration.configurations.forEach((configuration) => {
-            if (shouldAddAddressFields(configuration)) {
-              const tmpAddressFields: SerializedFormField[] =
-                addressFields.concat(getAddressFields(configuration))
-              addressFields = tmpAddressFields
-              const tmpPreviewGroups: IPreviewGroup[] = previewGroups.concat(
-                getPreviewGroups(configuration)
-              )
-              previewGroups = tmpPreviewGroups
-            }
-          })
-        }
-        if (preceedingDefaultField && addressFields.length) {
-          newForm.sections[preceedingDefaultField?.selectedSectionIndex].groups[
-            preceedingDefaultField?.selectedGroupIndex
-          ].fields.splice(preceedingDefaultField.index + 1, 0, ...addressFields)
-        }
-
-        if (preceedingDefaultField && previewGroups.length) {
-          const group =
-            newForm.sections[preceedingDefaultField?.selectedSectionIndex]
-              .groups[preceedingDefaultField?.selectedGroupIndex]
-          if (group.previewGroups) {
-            const newPreviewGroups: IPreviewGroup[] =
-              group.previewGroups.concat(previewGroups)
-            group.previewGroups = newPreviewGroups
-          } else {
-            group.previewGroups = previewGroups
+        configurations.forEach((configuration) => {
+          if (shouldAddAddressFields(configuration)) {
+            addressFields = addressFields.concat(
+              getAddressFields(configuration)
+            )
+            previewGroups = previewGroups.concat(
+              getPreviewGroups(configuration)
+            )
           }
+        })
+        newForm.sections[sectionIndex].groups[groupIndex].fields.splice(
+          fieldIndex + 1,
+          0,
+          ...addressFields
+        )
+
+        const group = newForm.sections[sectionIndex].groups[groupIndex]
+        if (group.previewGroups) {
+          group.previewGroups = group.previewGroups.concat(previewGroups)
+        } else {
+          group.previewGroups = previewGroups
         }
       }
     }

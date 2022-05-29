@@ -9,14 +9,7 @@
  * Copyright (C) The OpenCRVS Authors. OpenCRVS and the OpenCRVS
  * graphic logo are (registered/a) trademark(s) of Plan International.
  */
-
-import {
-  IFormConfig,
-  ISerializedForm,
-  ISerializedFormSection,
-  IFormSectionGroup,
-  SerializedFormField
-} from '@client/forms/index'
+import { IFormConfig, ISerializedForm } from '@client/forms/index'
 import {
   IQuestionConfig,
   isDefaultQuestionConfig,
@@ -29,7 +22,6 @@ import { getEventDraft } from '@client/forms/configuration/formDrafts/utils'
 import { registerForms } from './default'
 import { DraftStatus, Event } from '@client/utils/gateway'
 import { populateRegisterFormsWithAddresses } from './administrative/addresses'
-import { FieldEnabled } from './defaultUtils'
 import { deserializeForm } from '@client/forms/mappings/deserializer'
 
 // THIS FILE SORTS & COMBINES CONFIGURATIONS WITH THE DEFAULT CONFIGURATION FOR RENDERING IN THE APPLICATION
@@ -43,6 +35,11 @@ export enum FieldPosition {
   BOTTOM = 'BOTTOM'
 }
 
+/* For the enabled field in FormFields */
+export enum FieldEnabled {
+  DISABLED = 'DISABLED'
+}
+
 /* A singly linked list of questionConfigs whose
  * preceding field is a default field, which, is not
  * a part of the questionConfigs
@@ -50,41 +47,6 @@ export enum FieldPosition {
 type IQuestionConfigList = {
   precedingFieldId: string
   questions: IQuestionConfig[]
-}
-
-export interface ISection {
-  index: number
-  section: ISerializedFormSection
-}
-
-type IGroups = (Omit<IFormSectionGroup, 'fields'> & {
-  fields: SerializedFormField[]
-})[]
-
-export interface IGroup {
-  index: number
-  group: Omit<IFormSectionGroup, 'fields'> & {
-    fields: SerializedFormField[]
-  }
-}
-
-export function getSection(
-  sections: ISerializedFormSection[],
-  id: string
-): ISection {
-  const selectedSection = sections.filter((section) => section.id === id)[0]
-  return {
-    section: selectedSection,
-    index: sections.indexOf(selectedSection)
-  }
-}
-
-export function getGroup(groups: IGroups, id: string): IGroup {
-  const selectedGroup = groups.filter((group) => group.id === id)[0]
-  return {
-    group: selectedGroup,
-    index: groups.indexOf(selectedGroup)
-  }
 }
 
 function isConfigurable(status: DraftStatus | null) {

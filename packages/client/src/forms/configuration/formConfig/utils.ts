@@ -32,15 +32,12 @@ import {
 import {
   IQuestionConfig,
   IDefaultQuestionConfig,
-  ICustomQuestionConfig
+  ICustomQuestionConfig,
+  getIdentifiersFromFieldId
 } from '@client/forms/questionConfig'
 import { Event, CustomFieldType } from '@client/utils/gateway'
 import { camelCase, keys } from 'lodash'
-import {
-  FieldPosition,
-  getIdentifiersFromFieldId
-} from '@client/forms/configuration'
-import { FieldEnabled } from '@client/forms/configuration/defaultUtils'
+import { FieldPosition, FieldEnabled } from '@client/forms/configuration'
 import { getDefaultLanguage } from '@client/i18n/utils'
 import { MessageDescriptor } from 'react-intl'
 import { deserializeFormField } from '@client/forms/mappings/deserializer'

@@ -12,6 +12,7 @@
 import { CustomFieldType, Event } from '@client/utils/gateway'
 import { Message } from 'typescript-react-intl'
 import { registerForms } from '@client/forms/configuration/default'
+import { ISerializedForm } from '@client/forms'
 
 export interface IMessage {
   lang: string
@@ -99,11 +100,14 @@ export function getCustomizedDefaultField(question: IDefaultQuestionConfig) {
   }
 }
 
-export function getIdentifiersInDefaultForm(fieldId: string) {
+export function getIdentifiersInDefaultForm(
+  fieldId: string,
+  serializedForm?: ISerializedForm
+) {
   const { event, sectionId, groupId, fieldName } =
     getIdentifiersFromFieldId(fieldId)
 
-  const defaultForm = registerForms[event]
+  const defaultForm = serializedForm ?? registerForms[event]
 
   const sectionIndex = defaultForm.sections.findIndex(
     ({ id }) => id === sectionId

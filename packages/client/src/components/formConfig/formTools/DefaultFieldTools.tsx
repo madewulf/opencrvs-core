@@ -26,7 +26,7 @@ import {
 } from '@client/forms/configuration/formConfig/utils'
 import { useDispatch } from 'react-redux'
 import { fieldTypeLabel } from '@client/forms'
-import { FieldEnabled } from '@client/forms/configuration/defaultUtils'
+import { FieldEnabled } from '@client/forms/configuration'
 import { modifyConfigField } from '@client/forms/configuration/formConfig/actions'
 import { useFieldDefinition } from '@client/views/SysAdmin/Config/Forms/hooks'
 
