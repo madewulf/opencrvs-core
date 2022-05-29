@@ -9,143 +9,87 @@
  * Copyright (C) The OpenCRVS Authors. OpenCRVS and the OpenCRVS
  * graphic logo are (registered/a) trademark(s) of Plan International.
  */
-
-import { Event } from '@client/utils/gateway'
 import { FieldPosition } from '@client/forms/configuration'
 import { IConfigField, IConfigFieldMap } from './utils'
 
-export function getConfigFieldIdentifiers(fieldId: string) {
-  const [event, sectionId] = fieldId.split('.')
-  return {
-    event: event as Event,
-    sectionId
-  }
-}
-
-export function hasPreviewGroup(field: IConfigField) {
-  return Boolean(field.previewGroupID)
-}
-
-export function samePreviewGroupID(field1: IConfigField, field2: IConfigField) {
-  return (
-    field1.previewGroupID && field1.previewGroupID === field2.previewGroupID
-  )
-}
-
-export function getElementsOfPreviewGroup(
-  section: IConfigFieldMap,
-  previewGroupID: string | undefined
-) {
-  return Object.values(section).filter((s) => {
-    return s.previewGroupID === previewGroupID
-  })
-}
-
-export function getIndexOfPlaceholderPreviewGroup(
-  section: IConfigFieldMap,
-  givenField: IConfigField,
-  reverse?: boolean
-) {
-  if (!givenField.previewGroupID) {
-    return -1
-  }
-
-  const elements = getElementsOfPreviewGroup(section, givenField.previewGroupID)
-
-  return reverse
-    ? elements.reverse().indexOf(givenField)
-    : elements.indexOf(givenField)
-}
-
 export function shiftCurrentFieldUp(
-  section: IConfigFieldMap,
+  fields: IConfigFieldMap,
   currentField: IConfigField,
   previousField: IConfigField | undefined,
   nextField: IConfigField | undefined
 ) {
-  if (currentField.precedingFieldId === FieldPosition.TOP) return section
+  if (!previousField) return fields
 
-  const newSection = {
-    ...section
-  }
-  if (previousField) {
-    if (
-      previousField.precedingFieldId &&
-      previousField.precedingFieldId !== FieldPosition.TOP
-    ) {
-      /* change the previous of the previousField's next pointer */
-      newSection[previousField.precedingFieldId] = {
-        ...newSection[previousField.precedingFieldId],
-        foregoingFieldId: currentField.fieldId
-      }
-    }
+  fields = { ...fields }
 
-    /* change currentField's previous and next pointer */
-    newSection[currentField.fieldId] = {
-      ...newSection[currentField.fieldId],
-      precedingFieldId: previousField.precedingFieldId,
-      foregoingFieldId: previousField.fieldId
-    }
-
-    /* change previousField's previous and next pointer */
-    newSection[previousField.fieldId] = {
-      ...newSection[previousField.fieldId],
-      precedingFieldId: currentField.fieldId,
-      foregoingFieldId: currentField.foregoingFieldId
-    }
-  }
-
-  if (nextField) {
-    /* change nextField's previous pointer */
-    newSection[nextField.fieldId] = {
-      ...newSection[nextField.fieldId],
-      precedingFieldId: currentField.precedingFieldId
-    }
-  }
-  return newSection
-}
-
-export function shiftCurrentFieldDown(
-  section: IConfigFieldMap,
-  currentField: IConfigField,
-  previousField: IConfigField | undefined,
-  nextField: IConfigField | undefined
-) {
-  if (currentField.foregoingFieldId === FieldPosition.BOTTOM) return section
-
-  const newSection = {
-    ...section
-  }
-  if (nextField) {
-    if (nextField.foregoingFieldId !== FieldPosition.BOTTOM) {
-      /* change the next of the nextField's previous pointer */
-      newSection[nextField.foregoingFieldId] = {
-        ...newSection[nextField.foregoingFieldId],
-        precedingFieldId: currentField.fieldId
-      }
-    }
-
-    /* change currentField's previous and next pointer */
-    newSection[currentField.fieldId] = {
-      ...newSection[currentField.fieldId],
-      precedingFieldId: nextField.fieldId,
-      foregoingFieldId: nextField.foregoingFieldId
-    }
-
-    /* change nextField's previous and next pointer */
-    newSection[nextField.fieldId] = {
-      ...newSection[nextField.fieldId],
-      precedingFieldId: currentField.precedingFieldId,
+  if (previousField.precedingFieldId !== FieldPosition.TOP) {
+    /* change the previous previous field's next pointer */
+    fields[previousField.precedingFieldId] = {
+      ...fields[previousField.precedingFieldId],
       foregoingFieldId: currentField.fieldId
     }
   }
 
+  /* change current field's previous and next pointer */
+  fields[currentField.fieldId] = {
+    ...fields[currentField.fieldId],
+    precedingFieldId: previousField.precedingFieldId,
+    foregoingFieldId: previousField.fieldId
+  }
+
+  /* change previous field's previous and next pointer */
+  fields[previousField.fieldId] = {
+    ...fields[previousField.fieldId],
+    precedingFieldId: currentField.fieldId,
+    foregoingFieldId: currentField.foregoingFieldId
+  }
+
+  if (nextField) {
+    /* change next field's previous pointer */
+    fields[nextField.fieldId] = {
+      ...fields[nextField.fieldId],
+      precedingFieldId: currentField.precedingFieldId
+    }
+  }
+  return fields
+}
+
+export function shiftCurrentFieldDown(
+  fields: IConfigFieldMap,
+  currentField: IConfigField,
+  previousField: IConfigField | undefined,
+  nextField: IConfigField | undefined
+) {
+  if (!nextField) return fields
+
+  if (nextField.foregoingFieldId !== FieldPosition.BOTTOM) {
+    /* change the next next field's previous pointer */
+    fields[nextField.foregoingFieldId] = {
+      ...fields[nextField.foregoingFieldId],
+      precedingFieldId: currentField.fieldId
+    }
+  }
+
+  /* change current field's previous and next pointer */
+  fields[currentField.fieldId] = {
+    ...fields[currentField.fieldId],
+    precedingFieldId: nextField.fieldId,
+    foregoingFieldId: nextField.foregoingFieldId
+  }
+
+  /* change next field's previous and next pointer */
+  fields[nextField.fieldId] = {
+    ...fields[nextField.fieldId],
+    precedingFieldId: currentField.precedingFieldId,
+    foregoingFieldId: currentField.fieldId
+  }
+
   if (previousField) {
-    /* change previousField's next pointer */
-    newSection[previousField.fieldId] = {
-      ...newSection[previousField.fieldId],
+    /* change previous field's next pointer */
+    fields[previousField.fieldId] = {
+      ...fields[previousField.fieldId],
       foregoingFieldId: currentField.foregoingFieldId
     }
   }
-  return newSection
+  return fields
 }

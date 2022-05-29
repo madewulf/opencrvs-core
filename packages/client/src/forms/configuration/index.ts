@@ -85,10 +85,7 @@ function filterOutDefaultFields(
 function getQuestionConfigLists(questionConfigs: IQuestionConfig[]) {
   const questionsMap = questionConfigs.reduce<
     Record<string, IQuestionConfig | undefined>
-  >((accum, question) => {
-    accum[question.fieldId] = question
-    return accum
-  }, {})
+  >((accum, question) => ({ ...accum, [question.fieldId]: question }), {})
 
   const foregoingFieldMap = questionConfigs.reduce<
     Record<string, IQuestionConfig | undefined>

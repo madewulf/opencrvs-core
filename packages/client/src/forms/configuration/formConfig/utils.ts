@@ -11,11 +11,9 @@
  */
 import {
   IFormField,
-  IForm,
   IFormSection,
   ISerializedFormSection,
   ISerializedFormSectionGroup,
-  IFormSectionGroup,
   SerializedFormField,
   IRadioOption,
   ISelectOption,
@@ -35,7 +33,7 @@ import {
   ICustomQuestionConfig,
   getIdentifiersFromFieldId
 } from '@client/forms/questionConfig'
-import { Event, CustomFieldType } from '@client/utils/gateway'
+import { Event, CustomFieldType, QuestionInput } from '@client/utils/gateway'
 import { camelCase, keys } from 'lodash'
 import { FieldPosition, FieldEnabled } from '@client/forms/configuration'
 import { getDefaultLanguage } from '@client/i18n/utils'
@@ -45,49 +43,85 @@ import { createCustomField } from '@client/forms/configuration/customUtils'
 
 const CUSTOM_FIELD_LABEL = 'Custom Field'
 
-export type EventSectionGroup = {
-  event: Event
-  section: string
-  group: string
-}
-
-type IPreviewGroupPlaceholder = {
-  previewGroupID?: string
-  previewGroupLabel?: MessageDescriptor
-}
-
-export type IDefaultConfigField = IDefaultQuestionConfig & {
+type IConnection = {
   precedingFieldId: string
   foregoingFieldId: string
-  identifiers: {
-    sectionIndex: number
-    groupIndex: number
-    fieldIndex: number
-  }
-} & IPreviewGroupPlaceholder
+}
 
-export type ICustomConfigField = ICustomQuestionConfig & {
-  foregoingFieldId: string
-} & IPreviewGroupPlaceholder
+type IIdentifiers = {
+  sectionIndex: number
+  groupIndex: number
+  fieldIndex: number
+}
 
-export type IConfigField = IDefaultConfigField | ICustomConfigField
+export type IDefaultConfigField = IDefaultQuestionConfig & IConnection
+
+export type ICustomConfigField = ICustomQuestionConfig & IConnection
+
+export type IPreviewGroupConfigField = {
+  fieldId: string //previewGroupId
+  label: MessageDescriptor
+  configFields: IDefaultConfigField[]
+} & IConnection
+
+export type IConfigField =
+  | IDefaultConfigField
+  | ICustomConfigField
+  | IPreviewGroupConfigField
 
 export type IConfigFieldMap = Record<string, IConfigField>
 
 export type ISectionFieldMap = Record<string, IConfigFieldMap>
 
+export function getConfigFieldIdentifiers(fieldId: string) {
+  const [event, sectionId] = fieldId.split('.')
+  return {
+    event: event as Event,
+    sectionId
+  }
+}
+
+export function isDefaultConfigField(
+  configField: IConfigField
+): configField is IDefaultConfigField {
+  return (
+    !isCustomConfigField(configField) && !isPreviewGroupConfigField(configField)
+  )
+}
+
+export function isCustomConfigField(
+  configField: IConfigField
+): configField is ICustomConfigField {
+  return 'custom' in configField
+}
+
+export function isPreviewGroupConfigField(
+  configField: IConfigField
+): configField is IPreviewGroupConfigField {
+  return 'previewGroupId' in configField
+}
+
+export function getLastFieldOfPreviewGroup({
+  configFields
+}: IPreviewGroupConfigField) {
+  return configFields[configFields.length - 1]
+}
+
+export function getFirstFieldOfPreviewGroup({
+  configFields
+}: IPreviewGroupConfigField) {
+  return configFields[0]
+}
+
 function defaultFieldToQuestionConfig(
   fieldId: string,
-  precedingFieldId: string,
-  sectionIndex: number,
-  groupIndex: number,
-  fieldIndex: number,
-  field: IFormField
+  { precedingFieldId }: IConnection,
+  { sectionIndex, groupIndex, fieldIndex }: IIdentifiers,
+  field: SerializedFormField
 ): IDefaultConfigField {
   return {
     fieldId,
     enabled: field.enabled ?? '',
-    custom: false,
     required: field.required,
     precedingFieldId,
     foregoingFieldId: FieldPosition.BOTTOM,
@@ -99,67 +133,12 @@ function defaultFieldToQuestionConfig(
   }
 }
 
-function customFieldToQuestionConfig(
-  fieldId: string,
-  precedingFieldId: string,
-  field: IFormField,
-  questionConfig: IQuestionConfig[]
-): ICustomConfigField {
-  /* TODO: add errorMessage when implemented for FormFields */
-
-  const originalConfig: ICustomQuestionConfig = questionConfig.filter(
-    (question) => question.fieldId === fieldId
-  )[0] as ICustomQuestionConfig
-
-  const customQuestionConfig: ICustomConfigField = {
-    fieldId,
-    fieldName: field.name,
-    fieldType: originalConfig.fieldType,
-    precedingFieldId,
-    required: originalConfig.required,
-    custom: true,
-    foregoingFieldId: FieldPosition.BOTTOM,
-    label: originalConfig.label,
-    placeholder: originalConfig.placeholder,
-    tooltip: originalConfig.tooltip,
-    description: originalConfig.description
-  }
-  return customQuestionConfig
-}
-
-export function fieldToQuestionConfig(
-  fieldId: string,
-  precedingFieldId: string,
-  sectionIndex: number,
-  groupIndex: number,
-  fieldIndex: number,
-  field: IFormField,
-  questionConfig: IQuestionConfig[]
-): IConfigField {
-  if (!field.custom) {
-    return defaultFieldToQuestionConfig(
-      fieldId,
-      precedingFieldId,
-      sectionIndex,
-      groupIndex,
-      fieldIndex,
-      field
-    )
-  }
-  return customFieldToQuestionConfig(
-    fieldId,
-    precedingFieldId,
-    field,
-    questionConfig
-  )
-}
-
 export function getFieldDefinition(
   formSection: IFormSection,
-  configField: IConfigField
+  configField: IDefaultConfigField | ICustomConfigField
 ) {
   let formField: IFormField
-  if (isDefaultField(configField)) {
+  if (isDefaultConfigField(configField)) {
     const { groupIndex, fieldIndex } = configField.identifiers
     formField = {
       ...formSection.groups[groupIndex].fields[fieldIndex],
@@ -211,46 +190,141 @@ export function getCertificateHandlebar(formField: IFormField) {
   return formField.mapping?.template?.[0]
 }
 
-export function isDefaultField(
-  configField: IDefaultConfigField | ICustomConfigField
-): configField is IDefaultConfigField {
-  return !configField.custom
-}
-
 function getFieldId(
   event: Event,
-  section: IFormSection | ISerializedFormSection,
-  group: IFormSectionGroup | ISerializedFormSectionGroup,
-  field: IFormField | SerializedFormField
+  section: ISerializedFormSection,
+  group: ISerializedFormSectionGroup,
+  field: SerializedFormField
 ) {
   return [event.toLowerCase(), section.id, group.id, field.name].join('.')
 }
 
+function getPreviewGroupLabel(
+  group: ISerializedFormSectionGroup,
+  previewGroupId: string
+) {
+  const previewGroup = group.previewGroups!.find(
+    ({ id }) => id === previewGroupId
+  )
+  if (!previewGroup) {
+    throw new Error(`No preview group found for ${previewGroupId}`)
+  }
+  return previewGroup.label
+}
+
 export function getSectionFieldsMap(
   event: Event,
-  form: IForm,
+  defaultForm: ISerializedForm,
   questionConfig: IQuestionConfig[]
 ) {
-  return form.sections.reduce<ISectionFieldMap>(
+  const questionsMap = questionConfig.reduce<Record<string, IQuestionConfig>>(
+    (accum, question) => ({ ...accum, [question.fieldId]: question }),
+    {}
+  )
+
+  const hasPreviewGroup = (
+    field: SerializedFormField
+  ): field is SerializedFormField & { previewGroup: string } => {
+    return !!field.previewGroup
+  }
+
+  const addPreviewGroup = (
+    fieldId: string,
+    previewGroupId: string,
+    connections: IConnection,
+    identifiers: IIdentifiers,
+    fieldMap: IConfigFieldMap
+  ) => {
+    const { precedingFieldId, foregoingFieldId } = connections
+    const { sectionIndex, groupIndex, fieldIndex } = identifiers
+    const group = defaultForm.sections[sectionIndex].groups[groupIndex]
+    const field = group.fields[fieldIndex]
+
+    const defaultConfigField = defaultFieldToQuestionConfig(
+      fieldId,
+      connections,
+      identifiers,
+      field
+    )
+    if (previewGroupId in fieldMap) {
+      ;(fieldMap[previewGroupId] as IPreviewGroupConfigField).configFields.push(
+        defaultConfigField
+      )
+    } else {
+      fieldMap[previewGroupId] = {
+        precedingFieldId,
+        foregoingFieldId,
+        fieldId: previewGroupId,
+        label: getPreviewGroupLabel(group, previewGroupId),
+        configFields: []
+      }
+    }
+  }
+
+  const isCustomizedField = (fieldId: string) => {
+    return fieldId in questionsMap
+  }
+
+  const addCustomizedField = (fieldId: string, fieldMap: IConfigFieldMap) => {
+    fieldMap[fieldId] = {
+      ...questionsMap[fieldId],
+      foregoingFieldId: FieldPosition.BOTTOM
+    }
+  }
+
+  const addDefaultField = (
+    fieldId: string,
+    connections: IConnection,
+    identifiers: IIdentifiers,
+    fieldMap: IConfigFieldMap
+  ) => {
+    const { sectionIndex, groupIndex, fieldIndex } = identifiers
+    const field =
+      defaultForm.sections[sectionIndex].groups[groupIndex].fields[fieldIndex]
+    const defaultConfigField = defaultFieldToQuestionConfig(
+      fieldId,
+      connections,
+      identifiers,
+      field
+    )
+    fieldMap[fieldId] = defaultConfigField
+  }
+
+  return defaultForm.sections.reduce<ISectionFieldMap>(
     (sectionFieldMap, section, sectionIndex) => {
       let precedingFieldId: string = FieldPosition.TOP
       sectionFieldMap[section.id] = section.groups.reduce<IConfigFieldMap>(
         (groupFieldMap, group, groupIndex) =>
           group.fields.reduce((fieldMap, field, fieldIndex) => {
             const fieldId = getFieldId(event, section, group, field)
-            fieldMap[fieldId] = fieldToQuestionConfig(
-              fieldId,
+            const connections = {
               precedingFieldId,
+              foregoingFieldId: FieldPosition.BOTTOM
+            }
+            const identifiers = {
               sectionIndex,
               groupIndex,
-              fieldIndex,
-              field,
-              questionConfig
-            )
+              fieldIndex
+            }
+            if (isCustomizedField(fieldId)) {
+              addCustomizedField(fieldId, fieldMap)
+            } else if (hasPreviewGroup(field)) {
+              addPreviewGroup(
+                fieldId,
+                field.previewGroup,
+                connections,
+                identifiers,
+                fieldMap
+              )
+            } else {
+              addDefaultField(fieldId, connections, identifiers, fieldMap)
+            }
+
             if (precedingFieldId in fieldMap) {
-              fieldMap[precedingFieldId]!.foregoingFieldId = fieldId
+              fieldMap[precedingFieldId].foregoingFieldId = fieldId
             }
             precedingFieldId = fieldId
+
             return fieldMap
           }, groupFieldMap),
         {}
@@ -398,11 +472,17 @@ export function prepareNewCustomFieldConfig(
   )}`
   const lastField = getLastConfigField(fieldsMap)
 
+  const { fieldId } = !lastField
+    ? { fieldId: FieldPosition.TOP }
+    : isPreviewGroupConfigField(lastField)
+    ? getLastFieldOfPreviewGroup(lastField)
+    : lastField
+
   return {
     fieldId: customFieldIndex,
     fieldName: camelCase(defaultMessage),
     fieldType,
-    precedingFieldId: lastField ? lastField.fieldId : FieldPosition.TOP,
+    precedingFieldId: fieldId,
     foregoingFieldId: FieldPosition.BOTTOM,
     required: false,
     custom: true,
@@ -422,21 +502,17 @@ export function generateModifiedQuestionConfigs(
   configFields: ISectionFieldMap,
   defaultRegisterForm: ISerializedForm
 ) {
-  const questionConfigs: IQuestionConfig[] = []
+  const questionConfigs: QuestionInput[] = []
   Object.values(configFields).forEach((sectionConfigFields) => {
     Object.values(sectionConfigFields).forEach((configField) => {
-      if (!isDefaultField(configField)) {
-        const { foregoingFieldId, previewGroupID, previewGroupLabel, ...rest } =
-          configField
+      if (isCustomConfigField(configField)) {
+        const { foregoingFieldId, ...rest } = configField
         questionConfigs.push(rest)
-      } else if (hasDefaultFieldChanged(configField, defaultRegisterForm)) {
-        const {
-          foregoingFieldId,
-          identifiers,
-          previewGroupID,
-          previewGroupLabel,
-          ...rest
-        } = configField
+      } else if (
+        isDefaultConfigField(configField) &&
+        hasDefaultFieldChanged(configField, defaultRegisterForm)
+      ) {
+        const { foregoingFieldId, identifiers, ...rest } = configField
         questionConfigs.push(rest)
       }
     })

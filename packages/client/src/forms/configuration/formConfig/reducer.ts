@@ -9,7 +9,7 @@
  * Copyright (C) The OpenCRVS Authors. OpenCRVS and the OpenCRVS
  * graphic logo are (registered/a) trademark(s) of Plan International.
  */
-import { IForm, IFormConfig } from '@client/forms'
+import { IFormConfig } from '@client/forms'
 import { Event } from '@client/utils/gateway'
 import { FieldPosition, getConfiguredForm } from '@client/forms/configuration'
 import * as actions from '@client/forms/configuration/formConfig/actions'
@@ -20,16 +20,13 @@ import {
 } from '@client/forms/configuration/formDrafts/utils'
 import * as offlineActions from '@client/offline/actions'
 import { Cmd, Loop, loop, LoopReducer } from 'redux-loop'
+import { shiftCurrentFieldDown, shiftCurrentFieldUp } from './motionUtils'
 import {
-  getConfigFieldIdentifiers,
-  getElementsOfPreviewGroup,
-  getIndexOfPlaceholderPreviewGroup,
-  hasPreviewGroup,
-  samePreviewGroupID,
-  shiftCurrentFieldDown,
-  shiftCurrentFieldUp
-} from './motionUtils'
-import { getSectionFieldsMap, IConfigFieldMap, ISectionFieldMap } from './utils'
+  getSectionFieldsMap,
+  IConfigFieldMap,
+  ISectionFieldMap,
+  getConfigFieldIdentifiers
+} from './utils'
 import { populateRegisterFormsWithAddresses } from '@client/forms/configuration/administrative/addresses'
 import { registerForms } from '@client/forms/configuration/default'
 
@@ -43,12 +40,10 @@ export type IFormConfigState =
       state: 'READY'
       birth: {
         formDraft: IFormDraft
-        registerForm: IForm
         configFields: ISectionFieldMap
       }
       death: {
         formDraft: IFormDraft
-        registerForm: IForm
         configFields: ISectionFieldMap
       }
     }
@@ -66,7 +61,7 @@ function getPreviousField(fieldMap: IConfigFieldMap, fieldId: string) {
 
   const { precedingFieldId } = currentField
 
-  return precedingFieldId && precedingFieldId !== FieldPosition.TOP
+  return precedingFieldId !== FieldPosition.TOP
     ? fieldMap[precedingFieldId]
     : undefined
 }
@@ -99,87 +94,15 @@ function getReadyState(formConfig: IFormConfig) {
       formDraft:
         getEventDraft(formDrafts, Event.Birth) ||
         DEFAULT_FORM_DRAFT[Event.Birth],
-      registerForm: birthForm,
       configFields: getSectionFieldsMap(Event.Birth, birthForm, questionConfig)
     },
     death: {
       formDraft:
         getEventDraft(formDrafts, Event.Death) ||
         DEFAULT_FORM_DRAFT[Event.Death],
-      registerForm: deathForm,
       configFields: getSectionFieldsMap(Event.Death, deathForm, questionConfig)
     }
   }
-}
-
-function shiftUp(fieldMap: IConfigFieldMap, fieldId: string) {
-  let newSection = { ...fieldMap }
-  let currentField = fieldMap[fieldId]
-  let previousField = getPreviousField(fieldMap, fieldId)
-  let nextField = getNextField(fieldMap, fieldId)
-
-  if (undefined !== previousField && hasPreviewGroup(previousField)) {
-    while (
-      previousField &&
-      getIndexOfPlaceholderPreviewGroup(newSection, previousField) > -1 &&
-      !samePreviewGroupID(previousField, currentField)
-    ) {
-      newSection = shiftCurrentFieldUp(
-        newSection,
-        currentField,
-        previousField,
-        nextField
-      )
-
-      previousField = getPreviousField(newSection, fieldId)
-      nextField = getNextField(newSection, fieldId)
-      currentField = newSection[fieldId]
-    }
-  } else {
-    newSection = shiftCurrentFieldUp(
-      fieldMap,
-      currentField,
-      previousField,
-      nextField
-    )
-  }
-
-  return newSection
-}
-
-function shiftDown(fieldMap: IConfigFieldMap, fieldId: string) {
-  let newSection = { ...fieldMap }
-  let currentField = fieldMap[fieldId]
-  let previousField = getPreviousField(fieldMap, fieldId)
-  let nextField = getNextField(fieldMap, fieldId)
-
-  if (undefined !== nextField && hasPreviewGroup(nextField)) {
-    while (
-      nextField &&
-      getIndexOfPlaceholderPreviewGroup(newSection, nextField, true) > -1 &&
-      !samePreviewGroupID(nextField, currentField)
-    ) {
-      newSection = shiftCurrentFieldDown(
-        newSection,
-        currentField,
-        previousField,
-        nextField
-      )
-
-      previousField = getPreviousField(newSection, fieldId)
-      nextField = getNextField(newSection, fieldId)
-      currentField = newSection[fieldId]
-    }
-  } else {
-    newSection = shiftCurrentFieldDown(
-      fieldMap,
-      currentField,
-      previousField,
-      nextField
-    )
-  }
-
-  return newSection
 }
 
 export const formConfigReducer: LoopReducer<IFormConfigState, Actions> = (
@@ -207,10 +130,7 @@ export const formConfigReducer: LoopReducer<IFormConfigState, Actions> = (
         [customField.fieldId]: customField
       }
 
-      if (
-        customField.precedingFieldId &&
-        customField.precedingFieldId !== FieldPosition.TOP
-      ) {
+      if (customField.precedingFieldId !== FieldPosition.TOP) {
         fields[customField.precedingFieldId] = {
           ...fields[customField.precedingFieldId],
           foregoingFieldId: customField.fieldId
@@ -237,10 +157,7 @@ export const formConfigReducer: LoopReducer<IFormConfigState, Actions> = (
 
       /* Adjusting precedingFieldId & foregoingFieldId */
       if (modifiedProps.fieldId && fieldId !== modifiedProps.fieldId) {
-        if (
-          originalField.precedingFieldId &&
-          originalField.precedingFieldId !== FieldPosition.TOP
-        ) {
+        if (originalField.precedingFieldId !== FieldPosition.TOP) {
           fields[originalField.precedingFieldId] = {
             ...fields[originalField.precedingFieldId],
             foregoingFieldId: modifiedProps.fieldId
@@ -294,10 +211,7 @@ export const formConfigReducer: LoopReducer<IFormConfigState, Actions> = (
       const { [fieldId]: fieldToRemove, ...fields } =
         state[event].configFields[sectionId]
 
-      if (
-        fieldToRemove.precedingFieldId &&
-        fieldToRemove.precedingFieldId !== FieldPosition.TOP
-      ) {
+      if (fieldToRemove.precedingFieldId !== FieldPosition.TOP) {
         fields[fieldToRemove.precedingFieldId] = {
           ...fields[fieldToRemove.precedingFieldId],
           foregoingFieldId: fieldToRemove.foregoingFieldId
@@ -325,22 +239,11 @@ export const formConfigReducer: LoopReducer<IFormConfigState, Actions> = (
     case actions.SHIFT_CONFIG_FIELD_UP: {
       const { fieldId } = action.payload
       const { event, sectionId } = getConfigFieldIdentifiers(fieldId)
-      const fieldMap = state[event].configFields[sectionId]
-      const currentField = fieldMap[fieldId]
-      let newSection = { ...fieldMap }
+      const fields = { ...state[event].configFields[sectionId] }
 
-      if (hasPreviewGroup(currentField)) {
-        const elements = getElementsOfPreviewGroup(
-          fieldMap,
-          currentField.previewGroupID
-        )
-
-        elements.forEach((element) => {
-          newSection = shiftUp(newSection, element.fieldId)
-        })
-      } else {
-        newSection = shiftUp(fieldMap, fieldId)
-      }
+      const currentField = fields[fieldId]
+      const previousField = getPreviousField(fields, fieldId)
+      const nextField = getNextField(fields, fieldId)
 
       return {
         ...state,
@@ -348,7 +251,12 @@ export const formConfigReducer: LoopReducer<IFormConfigState, Actions> = (
           ...state[event],
           configFields: {
             ...state[event].configFields,
-            [sectionId]: newSection
+            [sectionId]: shiftCurrentFieldUp(
+              fields,
+              currentField,
+              previousField,
+              nextField
+            )
           }
         }
       }
@@ -357,22 +265,11 @@ export const formConfigReducer: LoopReducer<IFormConfigState, Actions> = (
     case actions.SHIFT_CONFIG_FIELD_DOWN: {
       const { fieldId } = action.payload
       const { event, sectionId } = getConfigFieldIdentifiers(fieldId)
-      const fieldMap = state[event].configFields[sectionId]
-      const currentField = fieldMap[fieldId]
-      let newSection = { ...fieldMap }
+      const fields = state[event].configFields[sectionId]
 
-      if (hasPreviewGroup(currentField)) {
-        const elements = getElementsOfPreviewGroup(
-          fieldMap,
-          currentField.previewGroupID
-        )
-
-        elements.reverse().forEach((element) => {
-          newSection = shiftDown(newSection, element.fieldId)
-        })
-      } else {
-        newSection = shiftDown(fieldMap, fieldId)
-      }
+      const currentField = fields[fieldId]
+      const previousField = getPreviousField(fields, fieldId)
+      const nextField = getNextField(fields, fieldId)
 
       return {
         ...state,
@@ -380,7 +277,12 @@ export const formConfigReducer: LoopReducer<IFormConfigState, Actions> = (
           ...state[event],
           configFields: {
             ...state[event].configFields,
-            [sectionId]: newSection
+            [sectionId]: shiftCurrentFieldDown(
+              fields,
+              currentField,
+              previousField,
+              nextField
+            )
           }
         }
       }
