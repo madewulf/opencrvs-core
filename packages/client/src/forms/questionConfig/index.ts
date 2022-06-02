@@ -9,7 +9,7 @@
  * Copyright (C) The OpenCRVS Authors. OpenCRVS and the OpenCRVS
  * graphic logo are (registered/a) trademark(s) of Plan International.
  */
-import { CustomFieldType, Event } from '@client/utils/gateway'
+import { CustomFieldType, Event, QuestionInput } from '@client/utils/gateway'
 import { Message } from 'typescript-react-intl'
 import { registerForms } from '@client/forms/configuration/default'
 import { ISerializedForm } from '@client/forms'
@@ -24,14 +24,16 @@ interface IBaseQuestionConfig {
   precedingFieldId: string
 }
 
+export interface IIdentifers {
+  sectionIndex: number
+  groupIndex: number
+  fieldIndex: number
+}
+
 export interface IDefaultQuestionConfig extends IBaseQuestionConfig {
   required?: boolean
   enabled: string
-  identifiers: {
-    sectionIndex: number
-    groupIndex: number
-    fieldIndex: number
-  }
+  identifiers: IIdentifers
 }
 
 export interface ICustomQuestionConfig extends IBaseQuestionConfig {
@@ -48,22 +50,6 @@ export interface ICustomQuestionConfig extends IBaseQuestionConfig {
 }
 
 export type IQuestionConfig = IDefaultQuestionConfig | ICustomQuestionConfig
-
-export interface IQuestionPayload {
-  fieldId: string
-  label?: IMessage[]
-  placeholder?: IMessage[]
-  description?: IMessage[]
-  tooltip?: IMessage[]
-  errorMessage?: IMessage[]
-  maxLength?: number
-  fieldName?: string
-  fieldType?: CustomFieldType
-  precedingFieldId: string
-  required?: boolean
-  enabled?: string
-  custom?: boolean
-}
 
 export function isDefaultQuestionConfig(
   questionConfig: IQuestionConfig
@@ -131,7 +117,7 @@ export function getIdentifiersInDefaultForm(
 
 /* TODO: The paylaod needs to be validated */
 export function questionsTransformer(
-  questionsPayload: IQuestionPayload[]
+  questionsPayload: QuestionInput[]
 ): IQuestionConfig[] {
   return questionsPayload.map(
     ({
@@ -172,7 +158,7 @@ export function questionsTransformer(
         precedingFieldId,
         identifiers: getIdentifiersInDefaultForm(fieldId)
       }
-      if (required !== undefined) {
+      if (required) {
         defaultQuestionConfig.required = required
       }
       return defaultQuestionConfig

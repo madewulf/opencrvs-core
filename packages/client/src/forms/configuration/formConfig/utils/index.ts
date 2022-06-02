@@ -9,6 +9,7 @@
  * Copyright (C) The OpenCRVS Authors. OpenCRVS and the OpenCRVS
  * graphic logo are (registered/a) trademark(s) of Plan International.
  */
+
 import {
   IFormField,
   ISerializedFormSection,
@@ -30,7 +31,7 @@ import {
   IQuestionConfig,
   IDefaultQuestionConfig,
   ICustomQuestionConfig,
-  getIdentifiersFromFieldId
+  isDefaultQuestionConfig
 } from '@client/forms/questionConfig'
 import { Event, CustomFieldType, QuestionInput } from '@client/utils/gateway'
 import { camelCase, keys } from 'lodash'
@@ -43,6 +44,14 @@ import {
   registerForms,
   PlaceholderPreviewGroups
 } from '@client/forms/configuration/default'
+import {
+  isPreviewGroupConfigField,
+  getLastFieldOfPreviewGroup,
+  getPreviewGroupToQuestionConfig
+} from './previewGroupUtils'
+
+export * from './previewGroupUtils'
+export * from './motionUtils'
 
 const CUSTOM_FIELD_LABEL = 'Custom Field'
 
@@ -96,24 +105,6 @@ export function isCustomConfigField(
   configField: IConfigField
 ): configField is ICustomConfigField {
   return 'custom' in configField
-}
-
-export function isPreviewGroupConfigField(
-  configField: IConfigField
-): configField is IPreviewGroupConfigField {
-  return 'previewGroupId' in configField
-}
-
-export function getLastFieldOfPreviewGroup({
-  configFields
-}: IPreviewGroupConfigField) {
-  return configFields[configFields.length - 1]
-}
-
-export function getFirstFieldOfPreviewGroup({
-  configFields
-}: IPreviewGroupConfigField) {
-  return configFields[0]
 }
 
 function defaultFieldToQuestionConfig(
@@ -371,40 +362,15 @@ export function getDefaultConfigFieldIdentifiers(
   }
 }
 
-function getIdentifiersInDefaultForm(
-  defaultConfigField: IDefaultConfigField,
-  defaultForm: ISerializedForm
-) {
-  const { event, sectionId, groupId, fieldName } = getIdentifiersFromFieldId(
-    defaultConfigField.fieldId
-  )
-
-  const sectionIndex = defaultForm.sections.findIndex(
-    ({ id }) => id === sectionId
-  )
-
-  const groups = defaultForm.sections[sectionIndex].groups
-
-  const groupIndex = groups.findIndex(({ id }) => id === groupId)
-
-  const fields = groups[groupIndex].fields
-
-  const fieldIndex = fields.findIndex(({ name }) => name === fieldName)
-
-  return {
-    event: event as Event,
+function getPrecedingDefaultFieldId(
+  {
+    event,
     sectionIndex,
     groupIndex,
     fieldIndex
-  }
-}
-
-function getPrecedingDefaultFieldId(
-  defaultFieldIdentifiers: ReturnType<typeof getIdentifiersInDefaultForm>,
+  }: IIdentifiers & { event: Event },
   defaultForm: ISerializedForm
 ) {
-  const { event, sectionIndex, groupIndex, fieldIndex } =
-    defaultFieldIdentifiers
   /* First field of the section */
   if (!fieldIndex && !groupIndex) {
     return FieldPosition.TOP
@@ -421,29 +387,25 @@ function getPrecedingDefaultFieldId(
   return getFieldId(event, section, group, field)
 }
 
-export function hasDefaultFieldChanged(
-  defaultConfigField: IDefaultConfigField,
+function hasDefaultFieldChanged(
+  questionConfig: IDefaultQuestionConfig,
   defaultForm: ISerializedForm
 ) {
-  const defaultFieldIdentifiers = getIdentifiersInDefaultForm(
-    defaultConfigField,
-    defaultForm
-  )
-
-  const { sectionIndex, groupIndex, fieldIndex } = defaultFieldIdentifiers
+  const { sectionIndex, groupIndex, fieldIndex } = questionConfig.identifiers
+  const { event } = getConfigFieldIdentifiers(questionConfig.fieldId)
   const defaultFormField =
     defaultForm.sections[sectionIndex].groups[groupIndex].fields[fieldIndex]
   const precedingDefaultFieldId = getPrecedingDefaultFieldId(
-    defaultFieldIdentifiers,
+    { ...questionConfig.identifiers, event },
     defaultForm
   )
-  if (precedingDefaultFieldId !== defaultConfigField.precedingFieldId) {
+  if (precedingDefaultFieldId !== questionConfig.precedingFieldId) {
     return true
   }
   return (
-    defaultConfigField.enabled === FieldEnabled.DISABLED ||
+    questionConfig.enabled === FieldEnabled.DISABLED ||
     /* These can be undefined so need to be converted to boolean */
-    !!defaultFormField.required !== !!defaultConfigField.required
+    !!defaultFormField.required !== !!questionConfig.required
   )
 }
 
@@ -521,24 +483,71 @@ export function prepareNewCustomFieldConfig(
   }
 }
 
+function configFieldToQuestionConfig(
+  configField: IConfigField
+): Array<IDefaultQuestionConfig | ICustomQuestionConfig> {
+  if (isCustomConfigField(configField)) {
+    const { foregoingFieldId, ...rest } = configField
+    return [rest]
+  }
+  if (isPreviewGroupConfigField(configField)) {
+    return getPreviewGroupToQuestionConfig(configField)
+  }
+  const { foregoingFieldId, ...rest } = configField
+  return [rest]
+}
+
+function configFieldsToQuestionConfigs(configFields: ISectionFieldMap) {
+  const getPrecedingFieldId = ({ precedingFieldId, fieldId }: IConfigField) => {
+    if (precedingFieldId === FieldPosition.TOP) return precedingFieldId
+    const { sectionId } = getConfigFieldIdentifiers(fieldId)
+    const previousConfigField = configFields[sectionId][precedingFieldId]
+    if (isPreviewGroupConfigField(previousConfigField)) {
+      return getLastFieldOfPreviewGroup(previousConfigField).fieldId
+    }
+    return previousConfigField.fieldId
+  }
+
+  return Object.values(configFields).reduce<
+    Array<IDefaultQuestionConfig | ICustomQuestionConfig>
+  >(
+    (sectionQuestionConfigs, sectionConfigFields) =>
+      Object.values(sectionConfigFields).reduce(
+        (questionConfigs, configField) => {
+          return [
+            ...questionConfigs,
+            ...configFieldToQuestionConfig(configField).map(
+              (questionConfig) => ({
+                ...questionConfig,
+                precedingFieldId: getPrecedingFieldId(configField)
+              })
+            )
+          ]
+        },
+        sectionQuestionConfigs
+      ),
+    []
+  )
+}
+
 export function generateModifiedQuestionConfigs(
   configFields: ISectionFieldMap,
   defaultRegisterForm: ISerializedForm
-) {
-  const questionConfigs: QuestionInput[] = []
-  Object.values(configFields).forEach((sectionConfigFields) => {
-    Object.values(sectionConfigFields).forEach((configField) => {
-      if (isCustomConfigField(configField)) {
-        const { foregoingFieldId, ...rest } = configField
-        questionConfigs.push(rest)
-      } else if (
-        isDefaultConfigField(configField) &&
-        hasDefaultFieldChanged(configField, defaultRegisterForm)
-      ) {
-        const { foregoingFieldId, identifiers, ...rest } = configField
-        questionConfigs.push(rest)
-      }
-    })
-  })
+): QuestionInput[] {
+  const questionConfigs = configFieldsToQuestionConfigs(configFields)
+
   return questionConfigs
+    .filter((questionConfig) => {
+      if (isDefaultQuestionConfig(questionConfig)) {
+        return hasDefaultFieldChanged(questionConfig, defaultRegisterForm)
+      }
+      return true
+    })
+    .map((questionConfig) => {
+      if (isDefaultQuestionConfig(questionConfig)) {
+        const { identifiers, ...rest } = questionConfig
+        return rest
+      }
+      return questionConfig
+    })
 }

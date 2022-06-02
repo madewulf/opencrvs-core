@@ -20,8 +20,9 @@ import {
 } from '@client/forms/configuration/formDrafts/utils'
 import * as offlineActions from '@client/offline/actions'
 import { Cmd, Loop, loop, LoopReducer } from 'redux-loop'
-import { shiftCurrentFieldDown, shiftCurrentFieldUp } from './motionUtils'
 import {
+  shiftCurrentFieldUp,
+  shiftCurrentFieldDown,
   getSectionFieldsMap,
   IConfigFieldMap,
   ISectionFieldMap,
