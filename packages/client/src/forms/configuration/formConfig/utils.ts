@@ -176,7 +176,7 @@ function hasOptions(
   return false
 }
 
-export function getContentKeys(formField: IFormField) {
+function getContentKey(formField: IFormField) {
   let contentKeys = [formField.label.id]
   if (
     hasOptions(formField) &&
@@ -190,6 +190,16 @@ export function getContentKeys(formField: IFormField) {
     )
   }
   return contentKeys
+}
+
+export function getContentKeys(
+  configField: IDefaultConfigField | IPreviewGroupConfigField
+) {
+  return isDefaultConfigField(configField)
+    ? getContentKey(getFieldDefinition(configField))
+    : configField.configFields
+        .map((field) => getContentKey(getFieldDefinition(field)))
+        .flat()
 }
 
 export function getCertificateHandlebar(formField: IFormField) {

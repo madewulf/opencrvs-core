@@ -46,16 +46,6 @@ export function selectConfigFields(
   return section ? configFields[section] : configFields
 }
 
-export function selectConfigField(
-  store: IStoreState,
-  event: Event,
-  section: string,
-  fieldId: string | null
-) {
-  const configFields = selectConfigFields(store, event, section)
-  return fieldId && configFields ? configFields[fieldId] : null
-}
-
 export function selectFormDraft(store: IStoreState, event: Event) {
   const formConfig = selectFormConfigState(store)
   return formConfig[event].formDraft

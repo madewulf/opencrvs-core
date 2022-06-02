@@ -12,7 +12,8 @@
 import { CustomFieldForms } from '@client/components/formConfig/CustomFieldForm'
 import {
   IConfigField,
-  isDefaultField
+  isDefaultConfigField,
+  isCustomConfigField
 } from '@client/forms/configuration/formConfig/utils'
 import React from 'react'
 import { useDispatch, useSelector } from 'react-redux'
@@ -41,15 +42,11 @@ import { SaveActionModal, SaveActionContext } from './SaveActionModal'
 import { SaveActionNotification } from './SaveActionNotification'
 import { FormConfigSettings } from './FormConfigSettings'
 import {
-  selectConfigField,
   selectFormDraft,
   selectConfigFields
 } from '@client/forms/configuration/formConfig/selectors'
 import { FieldPosition, FieldEnabled } from '@client/forms/configuration'
-import {
-  getIdentifiersFromFieldId,
-  isDefaultQuestionConfig
-} from '@client/forms/questionConfig'
+import { getIdentifiersFromFieldId } from '@client/forms/questionConfig'
 
 const Container = styled.div`
   display: flex;
@@ -135,10 +132,10 @@ function useSelectedField() {
   const [selectedFieldId, setSelectedFieldId] = React.useState<string | null>(
     null
   )
-  const selectedField = useSelector((store: IStoreState) =>
-    selectConfigField(store, event, section, selectedFieldId)
+  const fields = useSelector((store: IStoreState) =>
+    selectConfigFields(store, event, section)
   )
-
+  const selectedField = selectedFieldId ? fields[selectedFieldId] : null
   /*
    * We need to clear the selected field if section changes
    * as the changed section won't have the previously selected field
@@ -167,7 +164,7 @@ function useHiddenFields({
     if (
       !showHiddenFields &&
       selectedField &&
-      isDefaultQuestionConfig(selectedField) &&
+      isDefaultConfigField(selectedField) &&
       selectedField.enabled === FieldEnabled.DISABLED
     ) {
       setSelectedField(null)
@@ -277,9 +274,7 @@ export function FormConfigWizard() {
                *  we need to make sure that the selectedField is valid
                */}
               {isSelectedFieldValid(selectedField, section) ? (
-                isDefaultField(selectedField) ? (
-                  <DefaultFieldTools configField={selectedField} />
-                ) : (
+                isCustomConfigField(selectedField) ? (
                   <CustomFieldForms
                     key={selectedField.fieldId}
                     event={event}
@@ -288,6 +283,8 @@ export function FormConfigWizard() {
                     setSelectedField={setSelectedField}
                     groupId={firstFieldIdentifiers.groupId}
                   />
+                ) : (
+                  <DefaultFieldTools configField={selectedField} />
                 )
               ) : (
                 <FormTools
