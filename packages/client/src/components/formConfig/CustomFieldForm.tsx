@@ -23,6 +23,7 @@ import { Event } from '@client/utils/gateway'
 import { modifyConfigField } from '@client/forms/configuration/formConfig/actions'
 import {
   getCertificateHandlebar,
+  getConfigFieldIdentifiers,
   ICustomConfigField
 } from '@client/forms/configuration/formConfig/utils'
 import { buttonMessages } from '@client/i18n/messages'
@@ -47,7 +48,6 @@ import * as React from 'react'
 import { injectIntl, WrappedComponentProps as IntlShapeProp } from 'react-intl'
 import { connect } from 'react-redux'
 import { selectConfigFields } from '@client/forms/configuration/formConfig/selectors'
-import { getConfigFieldIdentifiers } from '@client/forms/configuration/formConfig/motionUtils'
 import { useFieldDefinition } from '@client/views/SysAdmin/Config/Forms/hooks'
 
 const CInputField = styled(InputField)`

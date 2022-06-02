@@ -26,11 +26,6 @@ export function selectFormConfigState(store: IStoreState) {
   return store.formConfig
 }
 
-export function selectConfigRegisterForm(store: IStoreState, event: Event) {
-  const formConfigState = selectFormConfigState(store)
-  return formConfigState[event].registerForm
-}
-
 export function selectConfigFields(
   store: IStoreState,
   event: Event

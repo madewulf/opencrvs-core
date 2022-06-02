@@ -10,24 +10,24 @@
  * graphic logo are (registered/a) trademark(s) of Plan International.
  */
 import { FormFieldGenerator } from '@client/components/form/FormFieldGenerator'
-import { BirthSection, DeathSection, IFormSection } from '@client/forms'
+import { BirthSection, DeathSection } from '@client/forms'
 import { Event } from '@client/utils/gateway'
 import { FieldPosition, FieldEnabled } from '@client/forms/configuration'
-import { PlaceholderPreviewGroups } from '@client/forms/configuration/default'
 import {
   removeCustomField,
   shiftConfigFieldDown,
   shiftConfigFieldUp
 } from '@client/forms/configuration/formConfig/actions'
-import {
-  selectConfigFields,
-  selectConfigRegisterForm
-} from '@client/forms/configuration/formConfig/selectors'
+import { selectConfigFields } from '@client/forms/configuration/formConfig/selectors'
 import {
   generateKeyFromObj,
-  getFieldDefinition,
   IConfigField,
-  IConfigFieldMap
+  IConfigFieldMap,
+  isDefaultConfigField,
+  isPreviewGroupConfigField,
+  isCustomConfigField,
+  IDefaultConfigField,
+  ICustomConfigField
 } from '@client/forms/configuration/formConfig/utils'
 import { messages } from '@client/i18n/messages/views/formConfig'
 import { IStoreState } from '@client/store'
@@ -40,7 +40,6 @@ import { useIntl } from 'react-intl'
 import { useDispatch, useSelector } from 'react-redux'
 import { useParams } from 'react-router'
 import ConfigPlaceholder from './ConfigPlaceholder'
-import { isDefaultQuestionConfig } from '@client/forms/questionConfig'
 
 const CanvasBox = styled(Box)`
   display: flex;
@@ -49,67 +48,6 @@ const CanvasBox = styled(Box)`
   border: 1px solid ${({ theme }) => theme.colors.grey300};
   border-radius: 4px;
 `
-
-function preparePlaceholderConfigAndVerify(
-  formSection: IFormSection,
-  currentField: IConfigField,
-  fields: IConfigField[]
-) {
-  const field = getFieldDefinition(formSection, currentField)
-
-  if (
-    field.customisable === true ||
-    !field.previewGroup ||
-    !PlaceholderPreviewGroups.includes(field.previewGroup)
-  ) {
-    return true
-  }
-
-  if (field.customisable === false && field.previewGroup) {
-    const previewGroup = formSection.groups.map((group) =>
-      group.previewGroups?.find(
-        (previewGroup) => previewGroup.id === field.previewGroup
-      )
-    )[0]
-    if (previewGroup) {
-      currentField.previewGroupID = previewGroup.id
-      currentField.previewGroupLabel = previewGroup.label
-    }
-  }
-
-  return !fields.find(
-    (tempField) =>
-      tempField.previewGroupID === currentField.previewGroupID &&
-      field.customisable === false
-  )
-}
-
-function generateConfigFields(
-  formFieldMap: IConfigFieldMap,
-  formSection: IFormSection
-) {
-  const firstField = Object.values(formFieldMap).find(
-    (formField) => formField.precedingFieldId === FieldPosition.TOP
-  )
-
-  if (!firstField) {
-    throw new Error(`No starting field found in section`)
-  }
-
-  const configFields: IConfigField[] = []
-  let currentField: IConfigField | null = firstField
-  while (currentField) {
-    if (
-      preparePlaceholderConfigAndVerify(formSection, currentField, configFields)
-    ) {
-      configFields.push(currentField)
-    }
-    currentField = currentField.foregoingFieldId
-      ? formFieldMap[currentField.foregoingFieldId]
-      : null
-  }
-  return configFields
-}
 
 type IRouteProps = {
   event: Event
@@ -122,7 +60,39 @@ type ICanvasProps = {
   setSelectedField: React.Dispatch<React.SetStateAction<string | null>>
 }
 
-function FormField({ configField }: { configField: IConfigField }) {
+function generateConfigFields(formFieldMap: IConfigFieldMap) {
+  const firstField = Object.values(formFieldMap).find(
+    (formField) => formField.precedingFieldId === FieldPosition.TOP
+  )
+
+  if (!firstField) {
+    throw new Error(`No starting field found in section`)
+  }
+
+  const configFields: IConfigField[] = []
+  let currentField: IConfigField | null = firstField
+  while (currentField) {
+    configFields.push(currentField)
+    currentField = currentField.foregoingFieldId
+      ? formFieldMap[currentField.foregoingFieldId]
+      : null
+  }
+  return configFields
+}
+
+function useConfigFields() {
+  const { event, section } = useParams<IRouteProps>()
+  const fieldsMap = useSelector((store: IStoreState) =>
+    selectConfigFields(store, event, section)
+  )
+  return React.useMemo(() => generateConfigFields(fieldsMap), [fieldsMap])
+}
+
+function FormField({
+  configField
+}: {
+  configField: IDefaultConfigField | ICustomConfigField
+}) {
   const formField = useFieldDefinition(configField)
   const { fieldId } = configField
   return (
@@ -141,37 +111,25 @@ export function Canvas({
   selectedField,
   setSelectedField
 }: ICanvasProps) {
-  const { event, section } = useParams<IRouteProps>()
   const dispatch = useDispatch()
   const intl = useIntl()
-  const fieldsMap = useSelector((store: IStoreState) =>
-    selectConfigFields(store, event, section)
-  )
-  const form = useSelector((store: IStoreState) =>
-    selectConfigRegisterForm(store, event)
-  )
-  const formSection = form.sections.find((sec) => sec.id === section)
+  const fields = useConfigFields()
 
-  if (!formSection) {
-    throw Error('No valid section found')
-  }
-
-  const configFields = generateConfigFields(fieldsMap, formSection)
   return (
     <CanvasBox>
       {(showHiddenFields
-        ? configFields
-        : configFields.filter((configField) =>
-            isDefaultQuestionConfig(configField)
+        ? fields
+        : fields.filter((configField) =>
+            isDefaultConfigField(configField)
               ? configField.enabled !== FieldEnabled.DISABLED
               : true
           )
       ).map((configField) => {
-        const { fieldId, precedingFieldId, foregoingFieldId, custom } =
-          configField
+        const { fieldId, precedingFieldId, foregoingFieldId } = configField
+        const isCustom = isCustomConfigField(configField)
         const isSelected = selectedField?.fieldId === fieldId
         const isHidden =
-          isDefaultQuestionConfig(configField) &&
+          isDefaultConfigField(configField) &&
           configField.enabled === FieldEnabled.DISABLED
 
         return (
@@ -180,9 +138,9 @@ export function Canvas({
             key={fieldId}
             selected={isSelected}
             onClick={() => setSelectedField(fieldId)}
-            movable={custom && isSelected}
+            movable={isCustom && isSelected}
             status={isHidden ? intl.formatMessage(messages.hidden) : undefined}
-            removable={custom}
+            removable={isCustom}
             isUpDisabled={precedingFieldId === FieldPosition.TOP}
             isDownDisabled={foregoingFieldId === FieldPosition.BOTTOM}
             onMoveUp={() => dispatch(shiftConfigFieldUp(fieldId))}
@@ -192,8 +150,8 @@ export function Canvas({
                 dispatch(removeCustomField(selectedField.fieldId))
             }}
           >
-            {configField.previewGroupLabel ? (
-              <ConfigPlaceholder label={configField.previewGroupLabel} />
+            {isPreviewGroupConfigField(configField) ? (
+              <ConfigPlaceholder label={configField.label} />
             ) : (
               <FormField configField={configField} />
             )}

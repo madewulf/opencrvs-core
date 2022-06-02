@@ -11,7 +11,6 @@
  */
 import {
   IFormField,
-  IFormSection,
   ISerializedFormSection,
   ISerializedFormSectionGroup,
   SerializedFormField,
@@ -40,6 +39,10 @@ import { getDefaultLanguage } from '@client/i18n/utils'
 import { MessageDescriptor } from 'react-intl'
 import { deserializeFormField } from '@client/forms/mappings/deserializer'
 import { createCustomField } from '@client/forms/configuration/customUtils'
+import {
+  registerForms,
+  PlaceholderPreviewGroups
+} from '@client/forms/configuration/default'
 
 const CUSTOM_FIELD_LABEL = 'Custom Field'
 
@@ -134,16 +137,19 @@ function defaultFieldToQuestionConfig(
 }
 
 export function getFieldDefinition(
-  formSection: IFormSection,
   configField: IDefaultConfigField | ICustomConfigField
 ) {
+  const { event } = getConfigFieldIdentifiers(configField.fieldId)
+  const defaultForm = registerForms[event]
   let formField: IFormField
   if (isDefaultConfigField(configField)) {
-    const { groupIndex, fieldIndex } = configField.identifiers
-    formField = {
-      ...formSection.groups[groupIndex].fields[fieldIndex],
+    const { sectionIndex, groupIndex, fieldIndex } = configField.identifiers
+    formField = deserializeFormField({
+      ...defaultForm.sections[sectionIndex].groups[groupIndex].fields[
+        fieldIndex
+      ],
       required: configField.required
-    }
+    })
   } else {
     formField = deserializeFormField(createCustomField(configField))
   }
@@ -228,6 +234,10 @@ export function getSectionFieldsMap(
     return !!field.previewGroup
   }
 
+  const isPlaceHolderPreviewGroup = (previewGroup: string) => {
+    return PlaceholderPreviewGroups.includes(previewGroup)
+  }
+
   const addPreviewGroup = (
     fieldId: string,
     previewGroupId: string,
@@ -308,7 +318,10 @@ export function getSectionFieldsMap(
             }
             if (isCustomizedField(fieldId)) {
               addCustomizedField(fieldId, fieldMap)
-            } else if (hasPreviewGroup(field)) {
+            } else if (
+              hasPreviewGroup(field) &&
+              isPlaceHolderPreviewGroup(field.previewGroup)
+            ) {
               addPreviewGroup(
                 fieldId,
                 field.previewGroup,
