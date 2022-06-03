@@ -16,7 +16,7 @@ import { IDefaultConfigField } from './defaultConfig'
 import { ISerializedFormSectionGroup } from '@client/forms'
 
 export type IPreviewGroupConfigField = {
-  fieldId: string //previewGroupId
+  fieldId: string //event.sectionid.groupId.previewGroupId
   label: MessageDescriptor
   configFields: IDefaultConfigField[]
 } & IConnection

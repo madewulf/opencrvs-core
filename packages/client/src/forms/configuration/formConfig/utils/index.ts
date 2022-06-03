@@ -159,7 +159,7 @@ export function getFieldId(
   group: ISerializedFormSectionGroup,
   field: SerializedFormField
 ) {
-  return [event.toLowerCase(), section.id, group.id, field.name].join('.')
+  return [event, section.id, group.id, field.name].join('.')
 }
 
 export function getSectionFieldsMap(
@@ -268,7 +268,7 @@ export function getSectionFieldsMap(
             ) {
               addPreviewGroup(
                 fieldId,
-                field.previewGroup,
+                [event, section.id, group.id, field.previewGroup].join('.'),
                 connections,
                 identifiers,
                 fieldMap
