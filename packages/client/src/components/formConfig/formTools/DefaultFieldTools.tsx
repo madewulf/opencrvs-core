@@ -32,6 +32,7 @@ import { useDispatch } from 'react-redux'
 import { fieldTypeLabel } from '@client/forms'
 import { FieldEnabled } from '@client/forms/configuration'
 import { modifyConfigField } from '@client/forms/configuration/formConfig/actions'
+import { useDefaultForm } from '@client/views/SysAdmin/Config/Forms/hooks'
 
 const Container = styled.div`
   display: flex;
@@ -127,11 +128,12 @@ export function DefaultFieldTools({
   configField: IDefaultConfigField | IPreviewGroupConfigField
 }) {
   const intl = useIntl()
+  const defaultForm = useDefaultForm()
   const formField = isDefaultConfigField(configField)
-    ? getFieldDefinition(configField)
-    : getFieldDefinition(getFirstFieldOfPreviewGroup(configField))
+    ? getFieldDefinition(configField, defaultForm)
+    : getFieldDefinition(getFirstFieldOfPreviewGroup(configField), defaultForm)
   const handleBar = getCertificateHandlebar(formField)
-  const contentKeys = getContentKeys(configField)
+  const contentKeys = getContentKeys(configField, defaultForm)
   const fieldType = fieldTypeLabel(formField.type)
 
   return (

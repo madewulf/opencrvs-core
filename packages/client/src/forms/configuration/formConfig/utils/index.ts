@@ -38,10 +38,7 @@ import { Event, QuestionInput } from '@client/utils/gateway'
 import { FieldPosition } from '@client/forms/configuration'
 import { deserializeFormField } from '@client/forms/mappings/deserializer'
 import { createCustomField } from '@client/forms/configuration/customUtils'
-import {
-  registerForms,
-  PlaceholderPreviewGroups
-} from '@client/forms/configuration/default'
+import { PlaceholderPreviewGroups } from '@client/forms/configuration/default'
 import {
   isPreviewGroupConfigField,
   getLastFieldOfPreviewGroup,
@@ -60,6 +57,7 @@ import {
 export * from './previewGroup'
 export * from './motion'
 export * from './customConfig'
+export * from './defaultConfig'
 
 export type IConnection = {
   precedingFieldId: string
@@ -84,10 +82,9 @@ export function getConfigFieldIdentifiers(fieldId: string) {
 }
 
 export function getFieldDefinition(
-  configField: IDefaultConfigField | ICustomConfigField
+  configField: IDefaultConfigField | ICustomConfigField,
+  defaultForm: ISerializedForm
 ) {
-  const { event } = getConfigFieldIdentifiers(configField.fieldId)
-  const defaultForm = registerForms[event]
   let formField: IFormField
   if (isDefaultConfigField(configField)) {
     const { sectionIndex, groupIndex, fieldIndex } = configField.identifiers
@@ -140,12 +137,13 @@ function getContentKey(formField: IFormField) {
 }
 
 export function getContentKeys(
-  configField: IDefaultConfigField | IPreviewGroupConfigField
+  configField: IDefaultConfigField | IPreviewGroupConfigField,
+  defaultForm: ISerializedForm
 ) {
   return isDefaultConfigField(configField)
-    ? getContentKey(getFieldDefinition(configField))
+    ? getContentKey(getFieldDefinition(configField, defaultForm))
     : configField.configFields
-        .map((field) => getContentKey(getFieldDefinition(field)))
+        .map((field) => getContentKey(getFieldDefinition(field, defaultForm)))
         .flat()
 }
 

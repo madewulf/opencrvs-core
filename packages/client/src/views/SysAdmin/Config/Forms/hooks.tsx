@@ -16,9 +16,24 @@ import {
   ICustomConfigField
 } from '@client/forms/configuration/formConfig/utils'
 import { IFormField } from '@client/forms'
+import { useParams } from 'react-router'
+import { populateRegisterFormsWithAddresses } from '@client/forms/configuration/administrative/addresses'
+import { registerForms } from '@client/forms/configuration/default'
+import { Event } from '@client/utils/gateway'
+
+export function useDefaultForm() {
+  const { event } = useParams<{ event: Event }>()
+  return React.useMemo(
+    () => populateRegisterFormsWithAddresses(registerForms[event], event),
+    [event]
+  )
+}
 
 export function useFieldDefinition(
   configField: IDefaultConfigField | ICustomConfigField
 ): IFormField {
-  return React.useMemo(() => getFieldDefinition(configField), [configField])
+  const defaultForm = useDefaultForm()
+  return React.useMemo(() => {
+    return getFieldDefinition(configField, defaultForm)
+  }, [configField, defaultForm])
 }
