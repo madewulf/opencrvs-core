@@ -83,13 +83,6 @@ export enum Action {
   REQUEST_CORRECTION_DECLARATION = 'request correction'
 }
 
-export interface IIdentifiers {
-  event: string
-  sectionId: string
-  groupId: string
-  fieldName: string
-}
-
 export interface IFormConfig {
   questionConfig: IQuestionConfig[]
   formDrafts: IFormDraft[]

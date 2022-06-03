@@ -24,7 +24,7 @@ interface IBaseQuestionConfig {
   precedingFieldId: string
 }
 
-export interface IIdentifers {
+export interface IIdentifiers {
   sectionIndex: number
   groupIndex: number
   fieldIndex: number
@@ -33,7 +33,7 @@ export interface IIdentifers {
 export interface IDefaultQuestionConfig extends IBaseQuestionConfig {
   required?: boolean
   enabled: string
-  identifiers: IIdentifers
+  identifiers: IIdentifiers
 }
 
 export interface ICustomQuestionConfig extends IBaseQuestionConfig {

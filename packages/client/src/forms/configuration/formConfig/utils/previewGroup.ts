@@ -9,10 +9,19 @@
  * Copyright (C) The OpenCRVS Authors. OpenCRVS and the OpenCRVS
  * graphic logo are (registered/a) trademark(s) of Plan International.
  */
-import { IConfigField, IPreviewGroupConfigField } from '.'
+import { IConfigField, IConnection } from '.'
 import { IDefaultQuestionConfig } from '@client/forms/questionConfig'
+import { MessageDescriptor } from 'react-intl'
+import { IDefaultConfigField } from './defaultConfig'
+import { ISerializedFormSectionGroup } from '@client/forms'
 
-export function getPreviewGroupToQuestionConfig(
+export type IPreviewGroupConfigField = {
+  fieldId: string //previewGroupId
+  label: MessageDescriptor
+  configFields: IDefaultConfigField[]
+} & IConnection
+
+export function previewGroupToQuestionConfig(
   configField: IPreviewGroupConfigField
 ): IDefaultQuestionConfig[] {
   return configField.configFields.map((field) => {
@@ -37,4 +46,17 @@ export function getFirstFieldOfPreviewGroup({
   configFields
 }: IPreviewGroupConfigField) {
   return configFields[0]
+}
+
+export function getPreviewGroupLabel(
+  group: ISerializedFormSectionGroup,
+  previewGroupId: string
+) {
+  const previewGroup = group.previewGroups!.find(
+    ({ id }) => id === previewGroupId
+  )
+  if (!previewGroup) {
+    throw new Error(`No preview group found for ${previewGroupId}`)
+  }
+  return previewGroup.label
 }
